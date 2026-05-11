@@ -4,20 +4,20 @@ services:
     name: bus-tracking-backend
     env: node
     plan: free
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && node server.js
+    buildCommand: npm install && cd backend && npm install
+    startCommand: node backend/server.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 5000
       - key: MONGO_URI
-        sync: false # User will set this in Render UI
+        sync: false # Set this in Render Dashboard
       - key: JWT_SECRET
-        sync: false # User will set this in Render UI
+        sync: false # Set this in Render Dashboard
 
   # Frontend Service
-  - type: web
+  - type: static
     name: bus-tracking-frontend
     env: static
     buildCommand: cd frontend && npm install && npm run build
@@ -27,4 +27,4 @@ services:
         fromService:
           name: bus-tracking-backend
           type: web
-          property: host
+          property: url
