@@ -19,7 +19,6 @@ services:
   # Frontend Service
   - type: static_site
     name: bus-tracking-frontend
-    env: static
     buildCommand: cd frontend && npm install && npm run build
     publishPath: frontend/dist
     envVars:
