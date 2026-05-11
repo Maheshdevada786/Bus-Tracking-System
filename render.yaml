@@ -17,7 +17,7 @@ services:
         sync: false # User will set this in Render UI
 
   # Frontend Service
-  - type: static
+  - type: static_site
     name: bus-tracking-frontend
     env: static
     buildCommand: cd frontend && npm install && npm run build
