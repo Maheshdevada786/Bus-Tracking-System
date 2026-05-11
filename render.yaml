@@ -17,11 +17,11 @@ services:
         sync: false # Set this in Render Dashboard
 
   # Frontend Service
-  - type: web
+  - type: static
     name: bus-tracking-frontend
     env: static
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    publishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
         fromService:
