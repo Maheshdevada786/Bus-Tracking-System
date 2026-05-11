@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiMap, FiActivity, FiClock, FiBell, FiUsers, FiTrendingUp, FiCloudRain, FiBarChart2, FiSend, FiGithub, FiLinkedin, FiTwitter, FiInstagram } from 'react-icons/fi';
+import { API_BASE_URL } from '../apiConfig';
 import './About.css';
 
 const TEAM_MEMBERS = [
@@ -206,7 +207,7 @@ const About = () => {
                 const message = e.target.message.value;
                 
                 try {
-                  const res = await fetch('/api/feedback', {
+                  const res = await fetch(`${API_BASE_URL}/api/feedback`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

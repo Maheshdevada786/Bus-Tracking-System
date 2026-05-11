@@ -143,7 +143,8 @@ export const BusProvider = ({ children }) => {
   useEffect(() => {
     const fetchDbBuses = async () => {
       try {
-        const response = await fetch('/api/tracking');
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const response = await fetch(`${apiUrl}/api/tracking`);
         if (!response.ok) return;
         const data = await response.json();
         

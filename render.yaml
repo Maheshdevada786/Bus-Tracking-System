@@ -27,4 +27,4 @@ services:
         fromService:
           name: bus-tracking-backend
           type: web
-          property: host
+          property: url

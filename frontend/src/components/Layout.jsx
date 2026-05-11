@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiMenu, FiX, FiMessageSquare, FiCpu, FiHome, FiMap, FiInfo, FiSettings, FiActivity, FiSend, FiSearch } from 'react-icons/fi';
 import { chatbotDataset } from '../data/chatbotDataset';
 import busLogo from '../assets/bus-logo.jpeg';
+import { API_BASE_URL } from '../apiConfig';
 import './Layout.css';
 
 const Layout = ({ children }) => {
@@ -29,7 +30,7 @@ const Layout = ({ children }) => {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const res = await fetch('/api/status');
+        const res = await fetch(`${API_BASE_URL}/api/status`);
         const data = await res.json();
         if (data.dbConnected) {
           setDbStatus(data.message);

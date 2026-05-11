@@ -346,7 +346,8 @@ const MapPageInner = () => {
 
   const handleSmartAlertSave = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/alerts', {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/alerts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
