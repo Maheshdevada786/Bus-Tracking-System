@@ -45,7 +45,6 @@ app.use('/api/alerts', alertRoutes);
 app.use('/api/stats', statsRoutes);
 
 // Serve frontend in production
-const path = require('path');
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 app.get('*', (req, res) => {
