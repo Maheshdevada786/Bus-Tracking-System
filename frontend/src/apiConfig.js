@@ -1,5 +1,6 @@
 const getApiUrl = () => {
-  return import.meta.env.VITE_API_URL || '';
+  const base = import.meta.env.VITE_API_URL || '';
+  return base.startsWith('http') ? base : `https://${base}`;
 };
 
 export const API_BASE_URL = getApiUrl();
