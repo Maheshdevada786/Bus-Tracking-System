@@ -368,12 +368,15 @@ const MapPageInner = () => {
         })
       });
       if (response.ok) {
-        setAlertSavedMessage('Alert saved successfully!');
+        // Close modal immediately
+        setShowSmartAlertModal(false);
+        setIsSavingAlert(false);
+        
+        // Show floating message on map
+        setAlertSavedMessage('Smart Alert activated successfully!');
         setTimeout(() => {
-          setShowSmartAlertModal(false);
           setAlertSavedMessage('');
-          setIsSavingAlert(false);
-        }, 2000);
+        }, 3000);
       } else {
         alert('Failed to save alert to database.');
         setIsSavingAlert(false);
@@ -428,6 +431,28 @@ const MapPageInner = () => {
 
   return (
     <div className="map-page-container">
+      {alertSavedMessage && (
+        <div style={{ 
+          position: 'fixed', 
+          top: '20px', 
+          left: '50%', 
+          transform: 'translateX(-50%)', 
+          zIndex: 5000,
+          background: '#10b981',
+          color: 'white',
+          padding: '12px 24px',
+          borderRadius: '50px',
+          boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontWeight: 'bold',
+          animation: 'slideDown 0.3s ease-out'
+        }}>
+          <FiBell /> {alertSavedMessage}
+        </div>
+      )}
+
       <div className="glass-panel map-type-dropdown" style={{
         position: 'absolute',
         top: '20px',
@@ -1047,12 +1072,6 @@ const MapPageInner = () => {
                 style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
               />
             </div>
-
-            {alertSavedMessage && (
-              <div style={{ background: '#dcfce7', color: '#166534', padding: '10px', borderRadius: '8px', marginBottom: '15px', textAlign: 'center', fontWeight: 'bold' }}>
-                {alertSavedMessage}
-              </div>
-            )}
 
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button 
