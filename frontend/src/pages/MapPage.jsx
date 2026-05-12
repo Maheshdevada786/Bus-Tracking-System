@@ -373,15 +373,15 @@ const MapPageInner = () => {
       });
       
       if (response.ok) {
+        setIsSavingAlert(false);
         setAlertSavedMessage('Smart Alert activated successfully!');
         setTimeout(() => {
           setAlertSavedMessage('');
-          setIsSavingAlert(false);
-        }, 1000);
+        }, 1500); // Increased slightly for visibility
       } else {
-        setAlertSavedMessage('Failed to save alert. Please try again.');
         setIsSavingAlert(false);
-        setTimeout(() => setAlertSavedMessage(''), 1000);
+        setAlertSavedMessage('Failed to save alert.');
+        setTimeout(() => setAlertSavedMessage(''), 2000);
       }
     } catch (err) {
       console.error(err);
