@@ -114,7 +114,7 @@ const generateMockBuses = (paths) => {
         busNumber: `PB${String(Math.floor(Math.random() * 99)).padStart(2, '0')}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${Math.floor(Math.random() * 9000) + 1000}`,
         route: route,
         currentLocation: { lat, lng },
-        speed: Math.floor(Math.random() * 15) + 20,
+        speed: Math.floor(Math.random() * 5) + 10,
         trafficCondition: traffic[Math.floor(Math.random() * traffic.length)],
         pathIndex,
         progress
@@ -357,7 +357,7 @@ export const BusProvider = ({ children }) => {
         const dist = Math.sqrt(distSq) || 0.0001; 
         
         // Standardize step progress based on distance to move at uniform real-world speed
-        const baseSpeed = bus.speed * trafficMultiplier * 50; // tunable scaling factor
+        const baseSpeed = bus.speed * trafficMultiplier * 0.005; // tunable scaling factor
         const stepProgress = baseSpeed / dist;
         
         progress += stepProgress;
