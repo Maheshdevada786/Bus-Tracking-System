@@ -347,8 +347,13 @@ const MapPageInner = () => {
   }, []);
 
   const handleSmartAlertSave = async () => {
+    // Close modal INSTANTLY as requested
+    setShowSmartAlertModal(false);
+    
+    // Show saving status on the map
+    setAlertSavedMessage('Saving smart alert...');
     setIsSavingAlert(true);
-    setAlertSavedMessage('');
+
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const token = localStorage.getItem('token');
@@ -367,24 +372,23 @@ const MapPageInner = () => {
           whatsappAlerts: true
         })
       });
+      
       if (response.ok) {
-        // Close modal immediately
-        setShowSmartAlertModal(false);
-        setIsSavingAlert(false);
-        
-        // Show floating message on map
         setAlertSavedMessage('Smart Alert activated successfully!');
         setTimeout(() => {
           setAlertSavedMessage('');
+          setIsSavingAlert(false);
         }, 3000);
       } else {
-        alert('Failed to save alert to database.');
+        setAlertSavedMessage('Failed to save alert. Please try again.');
         setIsSavingAlert(false);
+        setTimeout(() => setAlertSavedMessage(''), 3000);
       }
     } catch (err) {
       console.error(err);
-      alert('Error connecting to alert service.');
+      setAlertSavedMessage('Connection error. Check your internet.');
       setIsSavingAlert(false);
+      setTimeout(() => setAlertSavedMessage(''), 3000);
     }
   };
 
@@ -438,18 +442,19 @@ const MapPageInner = () => {
           left: '50%', 
           transform: 'translateX(-50%)', 
           zIndex: 5000,
-          background: '#10b981',
+          background: alertSavedMessage.includes('error') || alertSavedMessage.includes('Failed') ? '#ef4444' : (isSavingAlert ? '#3b82f6' : '#10b981'),
           color: 'white',
           padding: '12px 24px',
           borderRadius: '50px',
-          boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
           fontWeight: 'bold',
-          animation: 'slideDown 0.3s ease-out'
+          transition: 'all 0.3s ease'
         }}>
-          <FiBell /> {alertSavedMessage}
+          {isSavingAlert ? <div className="pulse-dot" style={{background: 'white'}}></div> : <FiBell />}
+          {alertSavedMessage}
         </div>
       )}
 
