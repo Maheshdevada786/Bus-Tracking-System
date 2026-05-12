@@ -41,6 +41,11 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
+
+
 app.use('/api/auth', authRoutes);
 app.use('/api/buses', busRoutes);
 app.use('/api/tracking', trackingRoutes);
