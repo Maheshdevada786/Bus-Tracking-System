@@ -9,8 +9,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
       - key: MONGO_URI
         sync: false # Set this in Render Dashboard
       - key: JWT_SECRET
@@ -24,10 +22,7 @@ services:
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        fromService:
-          name: bus-tracking-backend
-          type: web
-          property: host
+        sync: false # Set this to your Backend Public URL (e.g. https://bus-tracking-backend.onrender.com)
     routes:
       - type: rewrite
         source: /*
