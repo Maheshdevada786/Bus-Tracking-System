@@ -90,8 +90,10 @@ const sendWhatsAppMessage = async (phone, busNumber) => {
 exports.createAlert = async (req, res) => {
   try {
     const { email, phone, busNumber, route, emailAlerts, whatsappAlerts, smsAlerts } = req.body;
+    const userId = req.user ? req.user._id : null;
 
     const alert = await Alert.create({
+      user: userId,
       email,
       phone,
       busNumber,
@@ -160,6 +162,40 @@ exports.createAlert = async (req, res) => {
     });
   } catch (error) {
     console.error("Create alert error:", error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+// @desc    Get my alerts
+// @route   GET /api/alerts
+// @access  Private
+exports.getMyAlerts = async (req, res) => {
+  try {
+    const alerts = await Alert.find({ user: req.user._id }).sort({ createdAt: -1 });
+    res.json(alerts);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+// @desc    Delete alert
+// @route   DELETE /api/alerts/:id
+// @access  Private
+exports.deleteAlert = async (req, res) => {
+  try {
+    const alert = await Alert.findById(req.params.id);
+    if (!alert) {
+      return res.status(404).json({ message: 'Alert not found' });
+    }
+    
+    // Ensure user owns the alert
+    if (alert.user && alert.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    await alert.deleteOne();
+    res.json({ message: 'Alert removed' });
+  } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };

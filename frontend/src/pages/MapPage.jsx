@@ -347,9 +347,13 @@ const MapPageInner = () => {
   const handleSmartAlertSave = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/api/alerts`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
         body: JSON.stringify({
           email: smartAlertEmail,
           phone: smartAlertPhone,

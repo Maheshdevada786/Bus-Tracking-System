@@ -20,11 +20,7 @@ const Reminders = () => {
     emergencyAlerts: true
   });
 
-  const [activeAlerts, setActiveAlerts] = useState([
-    { id: 1, bus: 'PB02A1234', route: 'Amritsar → Chandigarh', type: 'Delay', status: 'Active', methods: ['Email', 'WhatsApp'] },
-    { id: 2, bus: 'PB08C9988', route: 'Jalandhar → Ludhiana', type: 'Route Change', status: 'Active', methods: ['SMS'] },
-    { id: 3, bus: 'PB10F4321', route: 'Ludhiana → Patiala', type: 'Emergency', status: 'Critical', methods: ['All'] }
-  ]);
+  const [activeAlerts, setActiveAlerts] = useState([]);
   
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -45,42 +41,65 @@ const Reminders = () => {
           if (notifications) setToggles(notifications);
           if (userChannels) setChannels(prev => ({ ...prev, ...userChannels }));
         }
-        setLoading(false);
       } catch (err) {
         console.error('Error fetching preferences:', err);
+      }
+    };
+
+    const fetchAlerts = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/alerts`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Map database alert object to UI format
+        const formattedAlerts = res.data.map(alert => ({
+          id: alert._id,
+          bus: alert.busNumber || 'N/A',
+          route: alert.route || 'General',
+          type: 'Smart Alert',
+          status: 'Active',
+          methods: [
+            alert.emailAlerts && 'Email',
+            alert.whatsappAlerts && 'WhatsApp',
+            alert.smsAlerts && 'SMS'
+          ].filter(Boolean)
+        }));
+        
+        setActiveAlerts(formattedAlerts);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching alerts:', err);
         setLoading(false);
       }
     };
 
     fetchPreferences();
+    fetchAlerts();
   }, []);
 
-  useEffect(() => {
-    // Simulate real-time alerts
-    const interval = setInterval(() => {
-      if (Math.random() > 0.8) {
-        const types = ['Delay', 'Traffic', 'Weather Disruption', 'Offline'];
-        const methods = [['Email'], ['SMS'], ['WhatsApp', 'Push'], ['All']];
-        const newAlert = {
-          id: Date.now(),
-          bus: `PB${Math.floor(Math.random()*90 + 10)}X${Math.floor(Math.random()*9000 + 1000)}`,
-          route: 'Random Route',
-          type: types[Math.floor(Math.random() * types.length)],
-          status: 'New',
-          methods: methods[Math.floor(Math.random() * methods.length)]
-        };
-        setActiveAlerts(prev => [newAlert, ...prev].slice(0, 5)); // Keep latest 5
-      }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  // Simulation effect removed to show real data
 
   const handleToggle = (key) => {
     setToggles(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const removeAlert = (id) => {
-    setActiveAlerts(prev => prev.filter(a => a.id !== id));
+  const removeAlert = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_BASE_URL}/api/alerts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setActiveAlerts(prev => prev.filter(a => a.id !== id));
+    } catch (err) {
+      console.error('Failed to delete alert:', err);
+    }
   };
 
   const handleSavePreferences = async () => {
