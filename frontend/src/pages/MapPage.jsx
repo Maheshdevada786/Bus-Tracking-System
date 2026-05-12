@@ -377,11 +377,11 @@ const MapPageInner = () => {
         setAlertSavedMessage('Smart Alert activated successfully!');
         setTimeout(() => {
           setAlertSavedMessage('');
-        }, 1500); // Increased slightly for visibility
+        }, 1000); // Increased slightly for visibility
       } else {
         setIsSavingAlert(false);
         setAlertSavedMessage('Failed to save alert.');
-        setTimeout(() => setAlertSavedMessage(''), 2000);
+        setTimeout(() => setAlertSavedMessage(''), 1000);
       }
     } catch (err) {
       console.error(err);
