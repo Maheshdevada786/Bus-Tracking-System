@@ -84,6 +84,8 @@ const MapPageInner = () => {
   const [smartAlertPhone, setSmartAlertPhone] = useState('');
   const [userLocationSelected, setUserLocationSelected] = useState(false);
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
+  const [alertSavedMessage, setAlertSavedMessage] = useState('');
+  const [isSavingAlert, setIsSavingAlert] = useState(false);
   
   // States for Directions API
   const [directionsResponse, setDirectionsResponse] = useState(null);
@@ -345,6 +347,8 @@ const MapPageInner = () => {
   }, []);
 
   const handleSmartAlertSave = async () => {
+    setIsSavingAlert(true);
+    setAlertSavedMessage('');
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const token = localStorage.getItem('token');
@@ -364,15 +368,21 @@ const MapPageInner = () => {
         })
       });
       if (response.ok) {
-        alert(`Smart alert activated for ${selectedBus?.busNumber} via Email and WhatsApp.`);
+        setAlertSavedMessage('Alert saved successfully!');
+        setTimeout(() => {
+          setShowSmartAlertModal(false);
+          setAlertSavedMessage('');
+          setIsSavingAlert(false);
+        }, 2000);
       } else {
         alert('Failed to save alert to database.');
+        setIsSavingAlert(false);
       }
     } catch (err) {
       console.error(err);
       alert('Error connecting to alert service.');
+      setIsSavingAlert(false);
     }
-    setShowSmartAlertModal(false);
   };
 
 
@@ -1038,18 +1048,26 @@ const MapPageInner = () => {
               />
             </div>
 
+            {alertSavedMessage && (
+              <div style={{ background: '#dcfce7', color: '#166534', padding: '10px', borderRadius: '8px', marginBottom: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                {alertSavedMessage}
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button 
                 onClick={() => setShowSmartAlertModal(false)}
-                style={{ padding: '8px 16px', border: 'none', background: '#e2e8f0', color: '#334155', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                disabled={isSavingAlert}
+                style={{ padding: '8px 16px', border: 'none', background: '#e2e8f0', color: '#334155', borderRadius: '8px', cursor: isSavingAlert ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: isSavingAlert ? 0.7 : 1 }}
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSmartAlertSave}
-                style={{ padding: '8px 16px', border: 'none', background: 'var(--primary)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                disabled={isSavingAlert}
+                style={{ padding: '8px 16px', border: 'none', background: 'var(--primary)', color: 'white', borderRadius: '8px', cursor: isSavingAlert ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: isSavingAlert ? 0.7 : 1 }}
               >
-                Save Alert
+                {isSavingAlert ? 'Saving...' : 'Save Alert'}
               </button>
             </div>
           </div>
