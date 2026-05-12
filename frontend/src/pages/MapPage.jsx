@@ -350,8 +350,7 @@ const MapPageInner = () => {
     // Close modal INSTANTLY as requested
     setShowSmartAlertModal(false);
     
-    // Show saving status on the map
-    setAlertSavedMessage('Saving smart alert...');
+    // Set saving state but don't show message yet
     setIsSavingAlert(true);
 
     try {
