@@ -378,17 +378,17 @@ const MapPageInner = () => {
         setTimeout(() => {
           setAlertSavedMessage('');
           setIsSavingAlert(false);
-        }, 3000);
+        }, 1000);
       } else {
         setAlertSavedMessage('Failed to save alert. Please try again.');
         setIsSavingAlert(false);
-        setTimeout(() => setAlertSavedMessage(''), 3000);
+        setTimeout(() => setAlertSavedMessage(''), 1000);
       }
     } catch (err) {
       console.error(err);
       setAlertSavedMessage('Connection error. Check your internet.');
       setIsSavingAlert(false);
-      setTimeout(() => setAlertSavedMessage(''), 3000);
+      setTimeout(() => setAlertSavedMessage(''), 1000);
     }
   };
 
