@@ -377,7 +377,7 @@ const MapPageInner = () => {
         setAlertSavedMessage('Smart Alert activated successfully!');
         setTimeout(() => {
           setAlertSavedMessage('');
-        }, 1000); // Increased slightly for visibility
+        }, 2000); // Increased slightly for visibility
       } else {
         setIsSavingAlert(false);
         setAlertSavedMessage('Failed to save alert.');
