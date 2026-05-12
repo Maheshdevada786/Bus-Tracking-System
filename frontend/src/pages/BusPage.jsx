@@ -6,6 +6,7 @@ import { FaBusAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './BusPage.css';
 import { useBusData } from '../context/BusContext';
+import { API_BASE_URL } from '../apiConfig'
 
 const BusPage = () => {
   const [source, setSource] = useState('');
@@ -27,7 +28,7 @@ const BusPage = () => {
     // Fetch unique locations for auto-suggestions
     const fetchLocations = async () => {
       try {
-        const res = await axios.get('/api/buses/routes/locations');
+        const res = await axios.get(`${API_BASE_URL}/api/buses/routes/locations`);              
         setLocations(res.data);
       } catch (err) {
         console.error('Failed to load locations', err);
