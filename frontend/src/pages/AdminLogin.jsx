@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { API_BASE_URL } from '../apiConfig';
 import { FiLock, FiShield } from 'react-icons/fi';
 import './Auth.css';
 
@@ -26,7 +27,7 @@ const AdminLogin = () => {
     setError('');
     
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
       if (res.data.role !== 'admin') {
         setError('Access Denied: You are not authorized as an admin.');
         setLoading(false);

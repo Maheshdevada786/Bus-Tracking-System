@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../apiConfig';
 import './Auth.css';
 
 const AuthCallback = () => {
@@ -16,7 +17,7 @@ const AuthCallback = () => {
       if (code) {
         try {
           // Send the code to backend
-          const res = await axios.post('/api/auth/oauth-callback', { code, provider });
+          const res = await axios.post(`${API_BASE_URL}/api/auth/oauth-callback`, { code, provider });
           
           if (res.data && res.data.token) {
             localStorage.setItem('token', res.data.token);

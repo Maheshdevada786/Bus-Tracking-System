@@ -43,11 +43,11 @@ const Admin = () => {
     setLoading(true);
     try {
       // Fetch buses
-      const resBuses = await axios.get('${API_BASE_URL}/api/buses');
+      const resBuses = await axios.get(`${API_BASE_URL}/api/buses`);
       setBuses(resBuses.data);
       
       // Fetch routes to populate dropdown
-      const resRoutes = await axios.get('${API_BASE_URL}/api/buses/routes');
+      const resRoutes = await axios.get(`${API_BASE_URL}/api/buses/routes`);
       const uniqueRoutes = resRoutes.data;
       
       setRoutes(uniqueRoutes);
@@ -100,9 +100,9 @@ const Admin = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       if (isEditing) {
-        await axios.put(`/api/buses/${editingId}`, formData, config);
+        await axios.put(`${API_BASE_URL}/api/buses/${editingId}`, formData, config);
       } else {
-        await axios.post('/api/buses', formData, config);
+        await axios.post(`${API_BASE_URL}/api/buses`, formData, config);
       }
       
       setShowModal(false);
@@ -116,7 +116,7 @@ const Admin = () => {
     if(window.confirm('Are you sure you want to permanently delete this bus?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`/api/buses/${id}`, {
+        await axios.delete(`${API_BASE_URL}/api/buses/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setBuses(buses.filter(bus => bus._id !== id));

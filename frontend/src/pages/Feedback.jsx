@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FiMessageSquare, FiX } from 'react-icons/fi';
 import axios from 'axios';
+import { API_BASE_URL } from '../apiConfig';
 
 const Feedback = () => {
   const [feedback, setFeedback] = useState('');
@@ -14,7 +15,7 @@ const Feedback = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.post('/api/feedback', {
+      await axios.post(`${API_BASE_URL}/api/feedback`, {
         category,
         message: feedback
       });

@@ -52,7 +52,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put('/api/auth/profile', editData, {
+      const res = await axios.put(`${API_BASE_URL}/api/auth/profile`, editData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser({ ...user, name: res.data.name, email: res.data.email });

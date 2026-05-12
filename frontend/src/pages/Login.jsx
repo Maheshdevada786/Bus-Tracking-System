@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
+import { API_BASE_URL } from '../apiConfig';
 import './Auth.css';
 
 const Login = () => {
@@ -28,7 +29,7 @@ const Login = () => {
     setError('');
     
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('userInfo', JSON.stringify(res.data));
       setLoading(false);

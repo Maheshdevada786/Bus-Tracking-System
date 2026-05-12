@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { globalPaths as initialGlobalPaths } from '../data/routePaths';
+import { API_BASE_URL } from '../apiConfig';
 
 const BusContext = createContext();
 
@@ -143,8 +144,7 @@ export const BusProvider = ({ children }) => {
   useEffect(() => {
     const fetchDbBuses = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const response = await fetch(`${apiUrl}/api/tracking`);
+        const response = await fetch(`${API_BASE_URL}/api/tracking`);
         if (!response.ok) return;
         const data = await response.json();
         
