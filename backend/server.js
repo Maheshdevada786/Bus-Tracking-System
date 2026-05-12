@@ -54,11 +54,11 @@ app.use('/api/alerts', alertRoutes);
 app.use('/api/stats', statsRoutes);
 
 // Serve frontend in production (Removed for split Render deployment)
-// app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-// app.get(/^(?!\/api).+/, (req, res) => {
-//   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-// });
+app.get(/^(?!\/api).+/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
 
 
 const PORT = process.env.PORT || 5000;
