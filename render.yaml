@@ -16,9 +16,10 @@ services:
       - key: JWT_SECRET
         sync: false # Set this in Render Dashboard
 
-staticSites:
   # Frontend Service
-  - name: bus-tracking-frontend
+  - type: web
+    name: bus-tracking-frontend
+    runtime: static
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     envVars:
