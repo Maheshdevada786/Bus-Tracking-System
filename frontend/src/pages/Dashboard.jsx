@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import LiveNetworkMap from '../components/LiveNetworkMap';
 import './Dashboard.css';
+import { API_BASE_URL } from '../apiConfig';
 
 const Dashboard = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -19,7 +20,7 @@ const Dashboard = () => {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('/api/stats', {
+        const res = await axios.get(`${API_BASE_URL}/api/stats`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStats(res.data);

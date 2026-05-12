@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FiUser, FiSettings, FiLogOut, FiEdit, FiKey, FiX } from 'react-icons/fi';
 import axios from 'axios';
 import './Auth.css';
+import { API_BASE_URL } from '../apiConfig';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -24,7 +25,7 @@ const Profile = () => {
       }
 
       try {
-        const res = await axios.get('/api/auth/profile', {
+        const res = await axios.get(`${API_BASE_URL}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUser(res.data);

@@ -5,6 +5,7 @@ import axios from 'axios';
 import './Auth.css';
 import './Pages.css';
 import { useBusData } from '../context/BusContext';
+import { API_BASE_URL } from '../apiConfig';
 
 const Admin = () => {
   const { buses: activeBuses, globalPaths } = useBusData();
@@ -42,11 +43,11 @@ const Admin = () => {
     setLoading(true);
     try {
       // Fetch buses
-      const resBuses = await axios.get('/api/buses');
+      const resBuses = await axios.get('${API_BASE_URL}/api/buses');
       setBuses(resBuses.data);
       
       // Fetch routes to populate dropdown
-      const resRoutes = await axios.get('/api/buses/routes');
+      const resRoutes = await axios.get('${API_BASE_URL}/api/buses/routes');
       const uniqueRoutes = resRoutes.data;
       
       setRoutes(uniqueRoutes);

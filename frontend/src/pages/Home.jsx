@@ -6,6 +6,7 @@ import heroBg from '../assets/hero-bg.jpeg';
 import LiveNetworkMap from '../components/LiveNetworkMap';
 import axios from 'axios';
 import './Home.css';
+import { API_BASE_URL } from '../apiConfig';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -16,17 +17,18 @@ const Home = () => {
   const [cities, setCities] = useState([]);
   const [stats, setStats] = useState({ activeBuses: '40+', totalRoutes: '340+' });
 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const locRes = await axios.get('/api/buses/routes/locations');
+        const locRes = await axios.get(`${API_BASE_URL}/api/buses/routes/locations`);
         setCities(locRes.data);
       } catch (e) {
         console.error(e);
       }
       try {
         // Try getting stats, otherwise fallback to defaults
-        const statsRes = await axios.get('/api/stats');
+        const statsRes = await axios.get(`${API_BASE_URL}/api/stats`);
         setStats({
           activeBuses: statsRes.data.activeBuses || '40+',
           totalRoutes: statsRes.data.totalRoutes || '340+'
