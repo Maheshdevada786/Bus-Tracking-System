@@ -196,6 +196,27 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// @desc    Update user preferences
+// @route   PUT /api/auth/preferences
+// @access  Private
+const updatePreferences = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      user.preferences = req.body.preferences || user.preferences;
+      const updatedUser = await user.save();
+      res.json({
+        preferences: updatedUser.preferences
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 
 module.exports = {
@@ -205,4 +226,5 @@ module.exports = {
   oauthCallback,
   updateProfile,
   changePassword,
+  updatePreferences,
 };

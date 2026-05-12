@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiMail, FiMessageCircle, FiSmartphone, FiBell, FiAlertTriangle, FiTrash2, FiSave, FiUser } from 'react-icons/fi';
+import axios from 'axios';
+import { API_BASE_URL } from '../apiConfig';
 import './Reminders.css';
 
 const Reminders = () => {
@@ -23,6 +25,35 @@ const Reminders = () => {
     { id: 2, bus: 'PB08C9988', route: 'Jalandhar → Ludhiana', type: 'Route Change', status: 'Active', methods: ['SMS'] },
     { id: 3, bus: 'PB10F4321', route: 'Ludhiana → Patiala', type: 'Emergency', status: 'Critical', methods: ['All'] }
   ]);
+  
+  const [loading, setLoading] = useState(true);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (res.data.preferences) {
+          const { notifications, channels: userChannels } = res.data.preferences;
+          if (notifications) setToggles(notifications);
+          if (userChannels) setChannels(prev => ({ ...prev, ...userChannels }));
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching preferences:', err);
+        setLoading(false);
+      }
+    };
+
+    fetchPreferences();
+  }, []);
 
   useEffect(() => {
     // Simulate real-time alerts
@@ -50,6 +81,35 @@ const Reminders = () => {
 
   const removeAlert = (id) => {
     setActiveAlerts(prev => prev.filter(a => a.id !== id));
+  };
+
+  const handleSavePreferences = async () => {
+    setSaveLoading(true);
+    setMessage('');
+    try {
+      const token = localStorage.getItem('token');
+      const payload = {
+        preferences: {
+          notifications: toggles,
+          channels: {
+            whatsapp: channels.whatsapp,
+            sms: channels.sms
+          }
+        }
+      };
+      
+      await axios.put(`${API_BASE_URL}/api/auth/preferences`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setMessage('Preferences saved successfully!');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err) {
+      setMessage('Failed to save preferences.');
+      console.error(err);
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   return (
@@ -162,8 +222,20 @@ const Reminders = () => {
 
             </div>
 
-            <button className="r-btn-save">
-              <FiSave style={{ marginRight: '8px' }} /> Save Preferences
+            {message && <div style={{ 
+              color: message.includes('success') ? '#34d399' : '#ef4444', 
+              marginBottom: '1rem', 
+              textAlign: 'center',
+              fontWeight: 'bold'
+            }}>{message}</div>}
+
+            <button 
+              className="r-btn-save" 
+              onClick={handleSavePreferences}
+              disabled={saveLoading}
+            >
+              <FiSave style={{ marginRight: '8px' }} /> 
+              {saveLoading ? 'Saving...' : 'Save Preferences'}
             </button>
           </div>
 

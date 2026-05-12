@@ -38,9 +38,15 @@ const userSchema = new mongoose.Schema({
   },
   preferences: {
     notifications: {
-      email: { type: Boolean, default: true },
-      sms: { type: Boolean, default: false },
-      whatsapp: { type: Boolean, default: false }
+      emailUpdates: { type: Boolean, default: true },
+      whatsappUpdates: { type: Boolean, default: false },
+      smsAlerts: { type: Boolean, default: false },
+      pushNotifications: { type: Boolean, default: true },
+      emergencyAlerts: { type: Boolean, default: true }
+    },
+    channels: {
+      whatsapp: { type: String, default: '' },
+      sms: { type: String, default: '' }
     }
   }
 }, {
