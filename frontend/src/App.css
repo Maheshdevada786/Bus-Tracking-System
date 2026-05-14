@@ -18,24 +18,24 @@
 }
 
 .hero {
-  position: relative;
+  @apply relative;
 
   .base,
   .framework,
   .vite {
     inset-inline: 0;
-    margin: 0 auto;
+    @apply m-0;auto;
   }
 
   .base {
     width: 170px;
-    position: relative;
+    @apply relative;
     z-index: 0;
   }
 
   .framework,
   .vite {
-    position: absolute;
+    @apply absolute;
   }
 
   .framework {
@@ -57,8 +57,8 @@
 }
 
 #center {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 25px;
   place-content: center;
   place-items: center;
@@ -71,9 +71,9 @@
 }
 
 #next-steps {
-  display: flex;
+  @apply flex;
   border-top: 1px solid var(--border);
-  text-align: left;
+  @apply text-left;
 
   & > div {
     flex: 1 1 0;
@@ -90,8 +90,8 @@
   }
 
   @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
+    @apply flex-col;
+    @apply text-center;
   }
 }
 
@@ -106,8 +106,8 @@
 
 #next-steps ul {
   list-style: none;
-  padding: 0;
-  display: flex;
+  @apply p-0;
+  @apply flex;
   gap: 8px;
   margin: 32px 0 0;
 
@@ -120,9 +120,9 @@
     font-size: 16px;
     border-radius: 6px;
     background: var(--social-bg);
-    display: flex;
+    @apply flex;
     padding: 6px 12px;
-    align-items: center;
+    @apply items-center;
     gap: 8px;
     text-decoration: none;
     transition: box-shadow 0.3s;
@@ -139,16 +139,16 @@
   @media (max-width: 1024px) {
     margin-top: 20px;
     flex-wrap: wrap;
-    justify-content: center;
+    @apply justify-center;
 
     li {
       flex: 1 1 calc(50% - 8px);
     }
 
     a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
+      @apply w-full;
+      @apply justify-center;
+      @apply box-border;
     }
   }
 }
@@ -162,13 +162,13 @@
 }
 
 .ticks {
-  position: relative;
-  width: 100%;
+  @apply relative;
+  @apply w-full;
 
   &::before,
   &::after {
     content: '';
-    position: absolute;
+    @apply absolute;
     top: -4.5px;
     border: 5px solid transparent;
   }

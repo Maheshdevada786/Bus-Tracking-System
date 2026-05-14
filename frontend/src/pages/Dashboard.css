@@ -1,7 +1,8 @@
 .dash-container {
   min-height: calc(100vh - 70px);
   padding: 1.5rem;
-  background-color: #0f172a;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
   background-image: 
     radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
     radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
@@ -14,8 +15,8 @@
 .dash-wrapper {
   max-width: 1600px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 1.5rem;
 }
 
@@ -29,19 +30,19 @@
 }
 
 .dash-top-row {
-  display: grid;
+  @apply grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
 }
 
 .dash-bottom-row {
-  display: grid;
+  @apply grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
 }
 
 .dash-middle-row {
-  display: grid;
+  @apply grid;
   grid-template-columns: 2.5fr 1.5fr 2fr;
   gap: 1rem;
   min-height: 400px;
@@ -49,23 +50,23 @@
 
 .metric-card-small {
   padding: 1rem;
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 0.5rem;
-  position: relative;
+  @apply relative;
 }
 
 .metric-card-title {
   font-size: 0.85rem;
   color: #94a3b8;
-  font-weight: 500;
+  @apply font-medium;
 }
 
 .metric-card-val {
   font-size: 1.6rem;
-  font-weight: 700;
+  @apply font-bold;
   color: #f8fafc;
-  display: flex;
+  @apply flex;
   align-items: baseline;
   gap: 0.5rem;
 }
@@ -73,8 +74,8 @@
 .metric-card-sub {
   font-size: 0.75rem;
   color: #94a3b8;
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 0.3rem;
 }
 
@@ -82,31 +83,31 @@
 .metric-perc.down { color: #f87171; }
 
 .metric-icon-tr {
-  position: absolute;
+  @apply absolute;
   top: 1rem;
   right: 1rem;
   width: 36px;
   height: 36px;
   border-radius: 50%;
   background: rgba(255,255,255,0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
   font-size: 1.1rem;
 }
 
 /* Middle Row Sections */
 .map-section {
   padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  position: relative;
+  @apply flex;
+  @apply flex-col;
+  @apply relative;
   overflow: hidden;
 }
 
 .map-title {
   font-size: 1rem;
-  font-weight: 600;
+  @apply font-semibold;
   margin-bottom: 0.2rem;
 }
 .map-subtitle {
@@ -117,32 +118,32 @@
 
 .arrivals-section {
   padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
 }
 
 .arrivals-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @apply flex;
+  @apply justify-between;
+  @apply items-center;
   margin-bottom: 1rem;
 }
 
 .dropdown-glass {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
-  color: white;
+  @apply text-white;
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  width: 100%;
-  outline: none;
+  @apply w-full;
+  @apply outline-none;
   margin-bottom: 1rem;
   appearance: none;
 }
 
 .arrival-item {
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 1rem;
   padding: 0.8rem 0;
   border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -171,16 +172,16 @@
 }
 
 .charts-section {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 1rem;
 }
 
 .chart-card {
   padding: 1.5rem;
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
 }
 
 .chart-header {
@@ -210,7 +211,7 @@
 }
 
 .route-bar-fill {
-  height: 100%;
+  @apply h-full;
   border-radius: 3px;
 }
 

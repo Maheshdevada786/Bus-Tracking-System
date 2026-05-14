@@ -680,9 +680,7 @@ const MapPageInner = () => {
                                ? globalPaths[matchedGlobalKey] 
                                : null;
 
-             if (searchResult && !baseRoutePath) {
-                 return null;
-             }
+             if (!baseRoutePath) return null;
 
              let color = '#10B981';
              if (bus.trafficCondition === 'Moderate') color = '#F59E0B';
@@ -700,8 +698,6 @@ const MapPageInner = () => {
 
              const isSelected = currentSelectedBus && currentSelectedBus.id === bus.id;
              const isMatchedSearch = searchResult && searchResult.buses.some(b => b.id === bus.id);
-             
-             // Draw paths for all buses unless there's a search, then only draw matched buses. If a bus is specifically selected, draw it too.
              const shouldDrawPath = (!searchResult && !currentSelectedBus) || isMatchedSearch || isSelected;
              
              let pathElements = null;
@@ -709,32 +705,40 @@ const MapPageInner = () => {
 
              if (shouldDrawPath) {
                   let routePath = baseRoutePath;
+                  let isTrimmed = false;
                   
                   if (searchResult && routePath) {
                       routePath = trimPathBySearch(routePath, searchResult);
+                      isTrimmed = true;
                   }
 
                   if (routePath && routePath.length > 0) {
                       let splitIdx = 0;
-                      let minDist = Infinity;
-                      routePath.forEach((pt, idx) => {
-                          const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
-                          if (dist < minDist) {
-                              minDist = dist;
-                              splitIdx = idx;
+                      
+                      // Fast path: if not trimmed, we know exactly where the bus is!
+                      if (!isTrimmed && bus.pathIndex !== undefined && bus.pathIndex < routePath.length) {
+                          splitIdx = bus.pathIndex;
+                      } else {
+                          // Fallback: fast distance search (checking every 10th node to save ms)
+                          let minDist = Infinity;
+                          let step = Math.max(1, Math.floor(routePath.length / 200)); 
+                          for(let idx = 0; idx < routePath.length; idx += step) {
+                              const pt = routePath[idx];
+                              const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
+                              if (dist < minDist) {
+                                  minDist = dist;
+                                  splitIdx = idx;
+                              }
                           }
-                      });
+                      }
                       
                       if (routePath[splitIdx]) {
                           snappedLocation = routePath[splitIdx];
                       }
                       
-                      let traveledPath = [];
-                      let remainingPath = [];
-                      
-                      traveledPath = routePath.slice(0, splitIdx + 1);
+                      const traveledPath = routePath.slice(0, splitIdx + 1);
                       traveledPath.push(snappedLocation);
-                      remainingPath = [snappedLocation, ...routePath.slice(splitIdx + 1)];
+                      const remainingPath = [snappedLocation, ...routePath.slice(splitIdx + 1)];
 
                       const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
                       const opacity = isSelected ? 1 : 0.8;
@@ -829,9 +833,10 @@ const MapPageInner = () => {
         </GoogleMap>
       </div>
 
-      {(searchResult || currentSelectedBus) && (
-        <div className="map-sidebar-left glass-panel">
-          <div className="sidebar-content">
+      <div className="mobile-sidebars-wrapper">
+        {(searchResult || currentSelectedBus) && (
+          <div className="map-sidebar-left glass-panel">
+            <div className="sidebar-content">
             <div className="panel-header">
               <span>{currentSelectedBus ? 'Active Route & ETA' : 'Route Stops & ETA'}</span>
             </div>
@@ -1032,6 +1037,10 @@ const MapPageInner = () => {
         </div>
       </div>
 
+
+
+      </div>
+
       <button 
         className="my-location-btn"
         onClick={() => {
@@ -1049,7 +1058,7 @@ const MapPageInner = () => {
 
       {showSmartAlertModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }}>
-          <div className="glass-panel" style={{ width: '400px', padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.95)' }}>
+          <div className="glass-panel" style={{ width: '90%', maxWidth: '400px', padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.95)' }}>
             <h2 style={{ marginTop: 0, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <FiBell /> Smart Alert Setup
             </h2>

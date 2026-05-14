@@ -1,18 +1,18 @@
 .layout-container {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   min-height: 100vh;
 }
 
 .top-nav {
-  position: fixed;
+  @apply fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 70px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @apply flex;
+  @apply justify-between;
+  @apply items-center;
   padding: 0 2rem;
   z-index: 1000;
   transition: var(--transition);
@@ -24,17 +24,17 @@
 }
 
 .nav-left {
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 1.5rem;
 }
 
 .hamburger-btn {
   font-size: 1.8rem;
   color: var(--secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
   width: 45px;
   height: 45px;
   border-radius: var(--radius-sm);
@@ -55,14 +55,14 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 0.5rem;
 }
 
 .nav-right {
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 1rem;
   background: rgba(10, 20, 40, 0.6);
   padding: 0.5rem 0.8rem;
@@ -74,7 +74,7 @@
 }
 
 .nav-link {
-  font-weight: 600;
+  @apply font-semibold;
   color: var(--secondary);
   padding: 0.5rem 1.2rem;
   border-radius: var(--radius-pill);
@@ -88,13 +88,13 @@
 }
 
 .nav-btn-glass {
-  position: relative;
+  @apply relative;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @apply items-center;
+  @apply justify-center;
   padding: 0.5rem 1.2rem;
-  font-weight: 600;
-  color: white;
+  @apply font-semibold;
+  @apply text-white;
   text-decoration: none;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
@@ -108,7 +108,7 @@
 
 .nav-btn-glass::before {
   content: '';
-  position: absolute;
+  @apply absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   border-radius: 50px;
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.4), rgba(0, 100, 255, 0.4));
@@ -134,8 +134,8 @@
 }
 
 .user-profile-nav {
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 0.8rem;
   padding: 0.3rem 0.8rem;
   border-radius: 50px;
@@ -162,15 +162,15 @@
 }
 
 .nav-username {
-  color: white;
-  font-weight: 600;
+  @apply text-white;
+  @apply font-semibold;
   font-size: 0.95rem;
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 /* Sidebar Menu */
 .sidebar {
-  position: fixed;
+  @apply fixed;
   top: 0;
   left: 0;
   width: 320px;
@@ -182,12 +182,12 @@
   z-index: 1100;
   padding: 2rem;
   box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
 }
 
 .sidebar-header {
-  display: flex;
+  @apply flex;
   justify-content: flex-end;
   margin-bottom: 2rem;
 }
@@ -199,9 +199,9 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -214,20 +214,20 @@
 }
 
 .sidebar-links {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 0.8rem;
 }
 
 .sidebar-link {
   font-size: 1.05rem;
-  font-weight: 500;
+  @apply font-medium;
   padding: 0.8rem 1.2rem;
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: rgba(255,255,255,0.7);
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 1rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid transparent;
@@ -252,7 +252,7 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-weight: 700;
+  @apply font-bold;
   margin-bottom: 0.8rem;
   padding-left: 1.5rem;
 }
@@ -275,7 +275,7 @@
 
 /* Chatbot UI */
 .chatbot-window {
-  position: fixed;
+  @apply fixed;
   bottom: 100px;
   right: 30px;
   width: 380px;
@@ -286,8 +286,8 @@
   border-radius: var(--radius-lg);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
   z-index: 1000;
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   overflow: hidden;
   border: 1px solid rgba(0,0,0,0.05);
   transition: all 0.3s ease;
@@ -295,16 +295,16 @@
 
 .chat-header {
   background: var(--gradient-primary);
-  color: white;
+  @apply text-white;
   padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
+  @apply flex;
+  @apply justify-between;
+  @apply items-center;
+  @apply font-semibold;
 }
 
 .chat-close {
-  color: white;
+  @apply text-white;
   font-size: 1.2rem;
 }
 
@@ -312,15 +312,15 @@
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 1.2rem;
-  background: transparent;
+  @apply bg-transparent;
 }
 
 .chat-message-wrapper {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   max-width: 85%;
 }
 
@@ -357,12 +357,12 @@
 
 .user-msg {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: white;
+  @apply text-white;
   border-bottom-right-radius: 4px;
 }
 
 .typing-indicator {
-  display: flex;
+  @apply flex;
   gap: 3px;
   padding: 0.5rem 1rem !important;
   width: fit-content;
@@ -385,12 +385,12 @@
 }
 
 .chat-input {
-  display: flex;
+  @apply flex;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.9);
   border-top: 1px solid rgba(0,0,0,0.05);
   gap: 0.8rem;
-  align-items: center;
+  @apply items-center;
 }
 
 .chat-input input {
@@ -398,7 +398,7 @@
   border: 1px solid #e2e8f0;
   border-radius: var(--radius-pill);
   padding: 0.8rem 1.2rem;
-  outline: none;
+  @apply outline-none;
   font-family: inherit;
   font-size: 0.95rem;
   background: rgba(248, 250, 252, 0.8);
@@ -413,15 +413,15 @@
 
 .chat-input button {
   background: var(--gradient-primary);
-  color: white;
+  @apply text-white;
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
+  @apply border-none;
+  @apply cursor-pointer;
   box-shadow: 0 4px 10px rgba(0, 201, 177, 0.3);
   transition: all 0.3s ease;
 }
@@ -432,7 +432,7 @@
 }
 
 .quick-replies {
-  display: flex;
+  @apply flex;
   gap: 0.5rem;
   padding: 0.8rem 1rem;
   overflow-x: auto;
@@ -453,15 +453,15 @@
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
+  @apply font-medium;
+  @apply cursor-pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .quick-reply-btn:hover {
   background: var(--primary);
-  color: white;
+  @apply text-white;
 }
 
 /* Media Queries for Responsiveness */
@@ -498,7 +498,7 @@
   }
   
   .nav-username {
-    display: none;
+    @apply hidden;
   }
   
   .sidebar {
@@ -516,7 +516,7 @@
 
 @media (max-width: 480px) {
   .logo span {
-    display: none;
+    @apply hidden;
   }
   
   .logo {
@@ -524,11 +524,11 @@
   }
   
   .nav-right {
-    background: transparent;
-    border: none;
+    @apply bg-transparent;
+    @apply border-none;
     box-shadow: none;
     backdrop-filter: none;
-    padding: 0;
+    @apply p-0;
   }
   
   .nav-btn-glass {

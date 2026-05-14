@@ -100,22 +100,35 @@ const getUserProfile = async (req, res) => {
 const oauthCallback = async (req, res) => {
   try {
     const { code, provider } = req.body;
-    // In a real app, we would exchange `code` for an access token with Google/GitHub,
-    // and then fetch the user's profile. Here we simulate this by creating a mock email.
-    // Use a deterministic dummy email based on the code length or just a random one.
-    const fakeEmail = `oauth_${code.substring(0, 5)}@${provider}.com`;
-    const fakeName = `${provider} User ${code.substring(0, 3)}`;
+    let email, name, picture;
+
+    if (provider === 'google') {
+      try {
+        const { default: axios } = await import('axios');
+        const googleRes = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${code}`);
+        email = googleRes.data.email;
+        name = googleRes.data.name;
+        picture = googleRes.data.picture;
+      } catch (err) {
+        console.error("Failed to fetch google profile", err);
+        return res.status(400).json({ message: "Invalid Google OAuth token" });
+      }
+    } else {
+      email = `oauth_${code.substring(0, 5)}@${provider}.com`;
+      name = `${provider} User ${code.substring(0, 3)}`;
+      picture = `https://ui-avatars.com/api/?name=${provider}+User&background=random`;
+    }
     
-    let user = await User.findOne({ email: fakeEmail });
+    let user = await User.findOne({ email });
 
     if (!user) {
       // Create account automatically
       user = await User.create({
-        name: fakeName,
-        email: fakeEmail,
+        name: name,
+        email: email,
         password: `OAuth_${Date.now()}_Secret!`, // Random password they don't know
         provider: provider,
-        profilePicture: `https://ui-avatars.com/api/?name=${provider}+User&background=random`,
+        profilePicture: picture,
         lastLoginTime: Date.now()
       });
     } else {

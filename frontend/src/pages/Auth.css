@@ -2,12 +2,13 @@
 
 .auth-container {
   min-height: calc(100vh - 70px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @apply flex;
+  @apply justify-center;
+  @apply items-center;
   padding: 2rem;
   /* Beautiful animated mesh gradient background */
-  background-color: #0f172a;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
   background-image: 
     radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
     radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
@@ -23,7 +24,7 @@
 }
 
 .particles {
-  position: absolute;
+  @apply absolute;
   top: 0; left: 0; width: 100%; height: 100%;
   overflow: hidden;
   z-index: 0;
@@ -31,7 +32,7 @@
 }
 
 .particle {
-  position: absolute;
+  @apply absolute;
   width: 8px;
   height: 8px;
   background: rgba(0, 255, 255, 0.4);
@@ -59,7 +60,7 @@
 }
 
 .auth-card {
-  width: 100%;
+  @apply w-full;
   max-width: 480px;
   /* Glassmorphism Effect */
   background: rgba(255, 255, 255, 0.95);
@@ -72,7 +73,7 @@
 }
 
 .auth-header {
-  text-align: center;
+  @apply text-center;
   margin-bottom: 2.5rem;
 }
 
@@ -91,23 +92,23 @@
 .auth-subtitle {
   color: #64748b;
   font-size: 1.05rem;
-  font-weight: 500;
+  @apply font-medium;
 }
 
 .auth-form {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 1.5rem;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 0.6rem;
 }
 
 .form-group label {
-  font-weight: 600;
+  @apply font-semibold;
   color: #334155;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -127,8 +128,9 @@
 
 .form-group input:focus {
   border-color: #3b82f6;
-  background: white;
-  outline: none;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  @apply outline-none;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
 }
 
@@ -137,16 +139,16 @@
 }
 
 .auth-btn {
-  width: 100%;
+  @apply w-full;
   padding: 16px;
   font-size: 1.15rem;
-  font-weight: 700;
+  @apply font-bold;
   margin-top: 1rem;
   border-radius: 12px;
   background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  color: white;
-  border: none;
-  cursor: pointer;
+  @apply text-white;
+  @apply border-none;
+  @apply cursor-pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.39);
 }
@@ -166,15 +168,15 @@
 }
 
 .auth-footer {
-  text-align: center;
+  @apply text-center;
   margin-top: 2.5rem;
   color: #64748b;
-  font-weight: 500;
+  @apply font-medium;
 }
 
 .auth-link {
   color: #2563eb;
-  font-weight: 700;
+  @apply font-bold;
   text-decoration: none;
   transition: all 0.2s ease;
 }
@@ -188,20 +190,21 @@
 .profile-container {
   min-height: calc(100vh - 70px);
   padding: 3rem 2rem;
-  background-color: #0f172a;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
   background-image: 
     radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
     radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
     radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%),
     url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
-  display: flex;
-  justify-content: center;
+  @apply flex;
+  @apply justify-center;
   align-items: flex-start;
 }
 
 .profile-card {
-  width: 100%;
+  @apply w-full;
   max-width: 600px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -215,22 +218,22 @@
 .profile-header-bg {
   height: 180px;
   background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
-  position: relative;
+  @apply relative;
   overflow: hidden;
 }
 
 .profile-header-bg::after {
   content: '';
-  position: absolute;
+  @apply absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
 }
 
 .profile-avatar-wrapper {
-  display: flex;
-  justify-content: center;
+  @apply flex;
+  @apply justify-center;
   margin-top: -65px;
-  position: relative;
+  @apply relative;
   z-index: 2;
 }
 
@@ -238,10 +241,11 @@
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
   font-size: 3.5rem;
   color: #3b82f6;
   box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -250,7 +254,7 @@
 
 .profile-info {
   padding: 2.5rem;
-  text-align: center;
+  @apply text-center;
 }
 
 .profile-name {
@@ -264,14 +268,14 @@
 .profile-email {
   color: #64748b;
   font-size: 1.1rem;
-  font-weight: 500;
+  @apply font-medium;
   margin-bottom: 2.5rem;
 }
 
 .profile-details {
-  text-align: left;
-  display: flex;
-  flex-direction: column;
+  @apply text-left;
+  @apply flex;
+  @apply flex-col;
   gap: 1.2rem;
   max-width: 450px;
   margin: 0 auto;
@@ -282,9 +286,9 @@
 }
 
 .detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @apply flex;
+  @apply justify-between;
+  @apply items-center;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -295,7 +299,7 @@
 }
 
 .detail-label {
-  font-weight: 700;
+  @apply font-bold;
   color: #475569;
   font-size: 0.95rem;
   text-transform: uppercase;
@@ -304,7 +308,7 @@
 
 .detail-value {
   color: #0f172a;
-  font-weight: 600;
+  @apply font-semibold;
   font-size: 1.05rem;
 }
 
@@ -314,28 +318,28 @@
   padding: 1rem 1.5rem;
   border-radius: 12px;
   margin-bottom: 2rem;
-  text-align: center;
-  font-weight: 600;
+  @apply text-center;
+  @apply font-semibold;
   font-size: 0.95rem;
   border: 1px solid #fecaca;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 /* Button overrides for profile page */
 .btn-outline {
   display: inline-flex;
-  align-items: center;
+  @apply items-center;
   padding: 12px 24px;
-  font-weight: 700;
+  @apply font-bold;
   border-radius: 12px;
   border: 2px solid #e2e8f0;
   color: #475569;
-  background: transparent;
+  @apply bg-transparent;
   transition: all 0.3s ease;
-  cursor: pointer;
+  @apply cursor-pointer;
   text-decoration: none;
 }
 
@@ -362,7 +366,8 @@
 .admin-dashboard-container {
   min-height: calc(100vh - 70px);
   padding: 3rem 2rem;
-  background-color: #0f172a;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
   background-image: 
     radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
     radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
@@ -373,7 +378,7 @@
 }
 
 .admin-card {
-  width: 100%;
+  @apply w-full;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -385,9 +390,9 @@
 }
 
 .admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @apply flex;
+  @apply justify-between;
+  @apply items-center;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -397,7 +402,7 @@
   font-size: 1.5rem;
   font-weight: 800;
   color: #1e293b;
-  margin: 0;
+  @apply m-0;
   background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -405,19 +410,19 @@
 }
 
 .admin-table {
-  width: 100%;
+  @apply w-full;
   border-collapse: separate;
   border-spacing: 0 8px;
 }
 
 .admin-table th {
-  text-align: left;
+  @apply text-left;
   padding: 1rem 1.2rem;
   color: #64748b;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 700;
+  @apply font-bold;
 }
 
 .admin-table td {
@@ -434,7 +439,8 @@
 .admin-table tbody tr:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
 }
 
 .admin-table td:first-child {
@@ -448,19 +454,19 @@
 }
 
 .action-btns {
-  display: flex;
+  @apply flex;
   gap: 0.5rem;
 }
 
 /* OAuth Buttons Styles */
 .oauth-separator {
-  display: flex;
-  align-items: center;
-  text-align: center;
+  @apply flex;
+  @apply items-center;
+  @apply text-center;
   margin: 1.5rem 0;
   color: #94a3b8;
   font-size: 0.9rem;
-  font-weight: 500;
+  @apply font-medium;
 }
 
 .oauth-separator::before,
@@ -475,25 +481,26 @@
 }
 
 .oauth-buttons {
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 1rem;
 }
 
 .oauth-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
   gap: 0.75rem;
-  width: 100%;
+  @apply w-full;
   padding: 14px;
   font-size: 1.05rem;
-  font-weight: 600;
+  @apply font-semibold;
   border-radius: 12px;
-  background: white;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
   border: 1px solid #e2e8f0;
   color: #334155;
-  cursor: pointer;
+  @apply cursor-pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
@@ -506,8 +513,8 @@
 
 .github-btn {
   background: #24292e;
-  color: white;
-  border: none;
+  @apply text-white;
+  @apply border-none;
 }
 
 .github-btn:hover {
@@ -529,9 +536,9 @@
 .glass-form-container h2 {
   color: #1e293b;
   margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @apply flex;
+  @apply justify-between;
+  @apply items-center;
   font-weight: 800;
   font-size: 1.4rem;
 }
@@ -541,16 +548,16 @@
 }
 
 .glass-form-container .btn-primary {
-  width: 100%;
+  @apply w-full;
   margin-top: 1rem;
   padding: 14px;
   border-radius: 12px;
   background: #00a884;
-  color: white;
-  border: none;
+  @apply text-white;
+  @apply border-none;
   font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
+  @apply font-bold;
+  @apply cursor-pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 14px rgba(0, 168, 132, 0.3);
 }
@@ -586,7 +593,7 @@
     padding: 1.5rem;
   }
   .admin-table {
-    display: block;
+    @apply block;
     overflow-x: auto;
     white-space: nowrap;
   }

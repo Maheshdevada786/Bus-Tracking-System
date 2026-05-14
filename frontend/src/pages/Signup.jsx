@@ -5,6 +5,7 @@ import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
 import { API_BASE_URL } from '../apiConfig';
+import { useGoogleLogin } from '@react-oauth/google';
 import './Auth.css';
 
 const Signup = () => {
@@ -43,12 +44,41 @@ const Signup = () => {
     }
   };
 
+  const googleSignup = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      try {
+        const res = await axios.post(`${API_BASE_URL}/api/auth/oauth-callback`, {
+          code: tokenResponse.code || tokenResponse.access_token,
+          provider: 'google'
+        });
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('userInfo', JSON.stringify(res.data));
+        setLoading(false);
+        setSuccess('Successfully signed up with Google');
+        
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
+      } catch (err) {
+        setLoading(false);
+        setError('Google Signup failed');
+      }
+    },
+    onError: () => {
+      setError('Google Signup was cancelled or failed');
+    }
+  });
+
   const handleOAuthLogin = (provider) => {
-    setLoading(true);
-    // Simulating OAuth flow since client IDs are not configured
-    setTimeout(() => {
-      window.location.href = `/auth/callback?code=mock_${provider.toLowerCase()}_code&provider=${provider.toLowerCase()}`;
-    }, 800);
+    if (provider === 'Google') {
+      googleSignup();
+    } else {
+      setLoading(true);
+      setTimeout(() => {
+        window.location.href = `/auth/callback?code=mock_${provider.toLowerCase()}_code&provider=${provider.toLowerCase()}`;
+      }, 800);
+    }
   };
 
   return (

@@ -6,7 +6,7 @@
     radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%);
   color: #fff;
   font-family: 'Inter', sans-serif;
-  position: relative;
+  @apply relative;
   overflow: hidden;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .about-particle {
-  position: absolute;
+  @apply absolute;
   width: 5px; height: 5px;
   background: #00ffff;
   border-radius: 50%;
@@ -67,8 +67,8 @@
 
 .about-hero-card {
   padding: 4rem 3rem;
-  text-align: center;
-  position: relative;
+  @apply text-center;
+  @apply relative;
   overflow: hidden;
 }
 

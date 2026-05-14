@@ -1,7 +1,7 @@
 .live-network-map-section {
   padding: 4rem 2rem;
   background-color: #0f172a;
-  position: relative;
+  @apply relative;
   overflow: hidden;
   font-family: 'Inter', 'Outfit', sans-serif;
 }
@@ -14,7 +14,7 @@
   border: 1px solid rgba(0, 255, 255, 0.15);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.05);
   overflow: hidden;
-  position: relative;
+  @apply relative;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -22,30 +22,30 @@
 .map-header {
   padding: 1.5rem 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
+  @apply flex;
+  @apply justify-between;
+  @apply items-center;
+  @apply relative;
   z-index: 10;
 }
 
 .map-title {
   color: #fff;
   font-size: 1.5rem;
-  font-weight: 700;
+  @apply font-bold;
   margin: 0 0 0.5rem 0;
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 10px;
 }
 
 .live-indicator {
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 6px;
   font-size: 0.85rem;
   color: #34d399;
-  font-weight: 500;
+  @apply font-medium;
 }
 
 .pulse-dot {
@@ -69,11 +69,11 @@
 }
 
 .map-controls {
-  position: absolute;
+  @apply absolute;
   top: 1.5rem;
   right: 1.5rem;
-  display: flex;
-  flex-direction: column;
+  @apply flex;
+  @apply flex-col;
   gap: 0.5rem;
   z-index: 20;
 }
@@ -85,11 +85,11 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
   font-size: 1.2rem;
-  cursor: pointer;
+  @apply cursor-pointer;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -102,8 +102,8 @@
 }
 
 .map-svg-container {
-  position: relative;
-  width: 100%;
+  @apply relative;
+  @apply w-full;
   height: 500px;
   background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
   overflow: hidden;
@@ -147,7 +147,7 @@
 
 .city-node text {
   font-size: 12px;
-  font-weight: 600;
+  @apply font-semibold;
   fill: #e2e8f0;
   text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
@@ -167,7 +167,7 @@
 }
 
 .status-panel {
-  display: flex;
+  @apply flex;
   justify-content: space-around;
   padding: 1.5rem;
   background: rgba(0, 0, 0, 0.2);
@@ -176,19 +176,19 @@
 }
 
 .status-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  @apply flex;
+  @apply flex-col;
+  @apply items-center;
   gap: 0.5rem;
 }
 
 .status-header {
-  display: flex;
-  align-items: center;
+  @apply flex;
+  @apply items-center;
   gap: 8px;
   color: #cbd5e1;
   font-size: 0.9rem;
-  font-weight: 500;
+  @apply font-medium;
 }
 
 .status-dot {
@@ -199,7 +199,7 @@
 
 .status-count {
   font-size: 1.5rem;
-  font-weight: 700;
+  @apply font-bold;
   color: #fff;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
