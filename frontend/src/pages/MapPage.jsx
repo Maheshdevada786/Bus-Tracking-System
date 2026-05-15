@@ -1,8 +1,30 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF, Polyline, InfoWindowF, DirectionsRenderer } from '@react-google-maps/api';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { GoogleMap, useJsApiLoader, MarkerF, Polyline, InfoWindowF } from '@react-google-maps/api';
 import { FiSearch, FiX, FiLayers, FiMapPin, FiClock, FiAlertCircle, FiBell } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import './MapPage.css';
+
+// A custom wrapper that bypasses the internal setAt crash in @react-google-maps/api
+// by manually calling the native Google Maps setPath method instead of passing the path prop.
+const SafePolyline = ({ path, options }) => {
+  const polyRef = useRef(null);
+
+  useEffect(() => {
+    if (polyRef.current && path) {
+      polyRef.current.setPath(path);
+    }
+  }, [path]);
+
+  return (
+    <Polyline
+      onLoad={(p) => {
+        polyRef.current = p;
+        p.setPath(path);
+      }}
+      options={options}
+    />
+  );
+};
 
 const containerStyle = {
   width: '100%',
@@ -702,15 +724,13 @@ const MapPageInner = () => {
                       pathElements = (
                         <React.Fragment key={groupKey}>
                           {traveledPath.length > 1 && (
-                            <Polyline 
-                              key={`travel-${bus.id}-${snappedLocation.lat}-${snappedLocation.lng}`}
+                            <SafePolyline 
                               path={traveledPath}
                               options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
                             />
                           )}
                           {remainingPath.length > 1 && (
-                            <Polyline 
-                              key={`remain-${bus.id}-${snappedLocation.lat}-${snappedLocation.lng}`}
+                            <SafePolyline 
                               path={remainingPath}
                               options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
                             />
