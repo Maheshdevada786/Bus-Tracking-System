@@ -631,26 +631,33 @@ const MapPageInner = () => {
 
              if (shouldDrawPath) {
                   let routePath = baseRoutePath;
+                  let isReversed = false;
                   
                   if (searchResult && routePath) {
+                      if (searchResult.sourceSearch && searchResult.destSearch && searchResult.sourceSearch !== 'your location') {
+                          const sCoord = getCityCoord(searchResult.sourceSearch);
+                          const dCoord = getCityCoord(searchResult.destSearch);
+                          if (sCoord && dCoord) {
+                              let sIdx = 0, dIdx = routePath.length - 1;
+                              let sMinDist = Infinity, dMinDist = Infinity;
+                              routePath.forEach((pt, idx) => {
+                                  const d1 = Math.pow(pt.lat - sCoord.lat, 2) + Math.pow(pt.lng - sCoord.lng, 2);
+                                  if (d1 < sMinDist) { sMinDist = d1; sIdx = idx; }
+                                  const d2 = Math.pow(pt.lat - dCoord.lat, 2) + Math.pow(pt.lng - dCoord.lng, 2);
+                                  if (d2 < dMinDist) { dMinDist = d2; dIdx = idx; }
+                              });
+                              if (sIdx > dIdx) isReversed = true;
+                          }
+                      }
                       routePath = trimPathBySearch(routePath, searchResult);
                   }
 
                   if (routePath && routePath.length > 1) {
                       const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
                       const opacity = isSelected ? 1 : 0.8;
-                      const pathKey = `path-${bus.id}-${routePath.length}-${routePath[0].lat}-${routePath[routePath.length-1].lat}`;
-
-                      pathElements = (
-                        <PolylineF 
-                          key={pathKey}
-                          path={routePath}
-                          options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
-                        />
-                      );
                       
                       let splitIdx = 0;
-                      if (bus.pathIndex !== undefined && bus.pathIndex < routePath.length) {
+                      if (!isReversed && bus.pathIndex !== undefined && bus.pathIndex < routePath.length) {
                           splitIdx = bus.pathIndex;
                       } else {
                           let minDist = Infinity;
@@ -664,9 +671,38 @@ const MapPageInner = () => {
                               }
                           }
                       }
+                      
                       if (routePath[splitIdx]) {
                           snappedLocation = routePath[splitIdx];
                       }
+
+                      const part1 = routePath.slice(0, splitIdx + 1);
+                      const part2 = routePath.slice(splitIdx);
+                      
+                      // For reversed path (bus physically going backwards vs route)
+                      const traveledPath = isReversed ? part2 : part1;
+                      const remainingPath = isReversed ? part1 : part2;
+
+                      const groupKey = `paths-${bus.id}-${routePath.length}-${routePath[0].lat}-${routePath[routePath.length-1].lat}`;
+
+                      pathElements = (
+                        <React.Fragment key={groupKey}>
+                          {traveledPath.length > 1 && (
+                            <PolylineF 
+                              key={`travel-${bus.id}`}
+                              path={traveledPath}
+                              options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
+                            />
+                          )}
+                          {remainingPath.length > 1 && (
+                            <PolylineF 
+                              key={`remain-${bus.id}`}
+                              path={remainingPath}
+                              options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
+                            />
+                          )}
+                        </React.Fragment>
+                      );
                   }
              }
 
