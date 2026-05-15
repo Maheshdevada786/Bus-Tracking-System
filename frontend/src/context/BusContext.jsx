@@ -150,7 +150,9 @@ export const BusProvider = ({ children }) => {
         
         const mappedDbBuses = data.map(dbBus => {
            let stops = [];
-           if (dbBus.route?.origin && dbBus.route?.destination) {
+           if (dbBus.route?.stops && dbBus.route.stops.length > 0) {
+             stops = dbBus.route.stops.map(s => (s.stopName || s).toLowerCase());
+           } else if (dbBus.route?.origin && dbBus.route?.destination) {
              stops = [dbBus.route.origin.toLowerCase(), dbBus.route.destination.toLowerCase()];
            }
            return {
@@ -268,12 +270,25 @@ export const BusProvider = ({ children }) => {
             result.routes[0].legs.forEach(leg => {
               leg.steps.forEach(step => {
                 step.path.forEach(p => {
-                  highResPath.push({ lat: p.lat(), lng: p.lng() });
+                  if (typeof p.lat === 'function') {
+                    highResPath.push({ lat: p.lat(), lng: p.lng() });
+                  } else {
+                    highResPath.push({ lat: p.lat, lng: p.lng });
+                  }
                 });
               });
             });
             updatedPaths[bus.route.name] = highResPath;
             madeChanges = true;
+            
+            // Persist the newly generated path to the database if it's a DB bus
+            if (bus.fullRoute && bus.fullRoute._id) {
+               fetch(`${API_BASE_URL}/api/buses/routes/${bus.fullRoute._id}/path`, {
+                 method: 'PUT',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify({ pathCoordinates: highResPath })
+               }).catch(err => console.error('Failed to save path to DB', err));
+            }
           }
         } catch (e) {
           console.error('DirectionsService failed for', bus.route.name, e);
@@ -357,18 +372,19 @@ export const BusProvider = ({ children }) => {
         const dist = Math.sqrt(distSq) || 0.0001; 
         
         // Standardize step progress based on distance to move at uniform real-world speed
-        const baseSpeed = bus.speed * trafficMultiplier * 0.005; // tunable scaling factor
+        const baseSpeed = bus.speed * trafficMultiplier * 0.000155; // Tunable scaling factor for increased visible speed
         const stepProgress = baseSpeed / dist;
         
         progress += stepProgress;
 
-        if (progress >= 1) {
-          progress = 0;
+        while (progress >= 1) {
+          progress -= 1;
           pathIndex++;
-        }
-
-        if (pathIndex >= currentPathSource.length - 1) {
-           pathIndex = 0;
+          if (pathIndex >= currentPathSource.length - 1) {
+             pathIndex = 0;
+             progress = 0;
+             break;
+          }
         }
         
         // Get fresh references for current calculation
@@ -385,7 +401,7 @@ export const BusProvider = ({ children }) => {
           currentLocation: { lat, lng }
         };
       }));
-    }, 5000);
+    }, 2550); // 2.5-second interval for simulation updates
 
     return () => clearInterval(interval);
   }, [globalPaths]);

@@ -773,64 +773,63 @@ const MapPageInner = () => {
                    }}
                    zIndex={100}
                  />
+                 {isSelected && (
+                   <InfoWindowF
+                     position={snappedLocation}
+                     onCloseClick={() => {
+                       setSelectedBus(null);
+                       if (map && !searchResult) {
+                         map.panTo(defaultCenter);
+                         map.setZoom(8);
+                       }
+                     }}
+                     options={{ pixelOffset: new window.google.maps.Size(0, -20) }}
+                   >
+                     <div className="custom-info-window">
+                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                         <h3 style={{ margin: 0 }}>{bus.busNumber}</h3>
+                         <button 
+                           onClick={() => {
+                             setSelectedBus(null);
+                             window.location.href = '/map';
+                           }} 
+                           style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontWeight: 'bold' }}
+                         >
+                           Reset View
+                         </button>
+                       </div>
+                       <p style={{ margin: '5px 0' }}><strong>Active Route:</strong> {bus.route.name}</p>
+                       <div className="info-row">
+                         <span className="info-label">Speed:</span>
+                         <span>{bus.speed.toFixed(1)} km/h</span>
+                       </div>
+                       <div className="info-row">
+                         <span className="info-label">Traffic:</span>
+                         <span style={{ 
+                           color: bus.trafficCondition === 'Clear' ? '#10B981' : (bus.trafficCondition === 'Heavy' ? '#EF4444' : '#F59E0B'),
+                           fontWeight: 'bold'
+                         }}>
+                           {bus.trafficCondition}
+                         </span>
+                       </div>
+                       <div className="info-row" style={{ marginTop: '5px', paddingTop: '5px', borderTop: '1px solid #e2e8f0'}}>
+                         <span className="info-label"><FiClock style={{marginBottom: '-2px'}}/> Dest. ETA:</span>
+                         <span>{bus.pathIndex !== undefined ? Math.max(5, Math.floor((1 - (bus.pathIndex / 100)) * 45)) : 15} mins</span>
+                       </div>
+                       <button 
+                         style={{ width: '100%', marginTop: '10px', padding: '6px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }}
+                         onClick={() => setShowSmartAlertModal(true)}
+                       >
+                         <FiBell /> Smart Alert
+                       </button>
+                     </div>
+                   </InfoWindowF>
+                 )}
                </React.Fragment>
              );
            })}
 
-          {currentSelectedBus && (
-            <InfoWindowF
-              position={currentSelectedBus.currentLocation}
-              onCloseClick={() => {
-                setSelectedBus(null);
-                if (map && !searchResult) {
-                  map.panTo(defaultCenter);
-                  map.setZoom(8);
-                }
-              }}
-              options={{ pixelOffset: new window.google.maps.Size(0, -20) }}
-            >
-              <div className="custom-info-window">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ margin: 0 }}>{currentSelectedBus.busNumber}</h3>
-                  <button 
-                    onClick={() => {
-                      setSelectedBus(null);
-                      window.location.href = '/map';
-                    }} 
-                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontWeight: 'bold' }}
-                  >
-                    Reset View
-                  </button>
-                </div>
-                <p style={{ margin: '5px 0' }}><strong>Route:</strong> {currentSelectedBus.route.name}</p>
-                <div className="info-row">
-                  <span className="info-label">Speed:</span>
-                  <span>{currentSelectedBus.speed.toFixed(1)} km/h</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Traffic:</span>
-                  <span style={{ 
-                    color: currentSelectedBus.trafficCondition === 'Clear' ? '#10B981' : (currentSelectedBus.trafficCondition === 'Heavy' ? '#EF4444' : '#F59E0B'),
-                    fontWeight: 'bold'
-                  }}>
-                    {currentSelectedBus.trafficCondition}
-                  </span>
-                </div>
-                <div className="info-row" style={{ marginTop: '5px', paddingTop: '5px', borderTop: '1px solid #e2e8f0'}}>
-                  <span className="info-label"><FiClock style={{marginBottom: '-2px'}}/> Next Stop ETA:</span>
-                  <span>{Math.floor(Math.random() * 15) + 5} mins</span>
-                </div>
-                <button 
-                  style={{ width: '100%', marginTop: '10px', padding: '6px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }}
-                  onClick={() => setShowSmartAlertModal(true)}
-                >
-                  <FiBell /> Smart Alert
-                </button>
-              </div>
-            </InfoWindowF>
-          )}
-
-        </GoogleMap>
+          </GoogleMap>
       </div>
 
       <div className="mobile-sidebars-wrapper">

@@ -82,18 +82,25 @@ const createBus = async (req, res) => {
     const createdBus = await bus.save();
 
     // Initialize BusLocation to make it appear on the map immediately
+    let initialLoc = { lat: 31.6340, lng: 74.8723 }; // Default Amritsar fallback
     if (routeId) {
       const route = await Route.findById(routeId);
       if (route && route.pathCoordinates && route.pathCoordinates.length > 0) {
-        await BusLocation.create({
-          bus: createdBus._id,
-          route: routeId,
-          currentLocation: route.pathCoordinates[0],
-          speed: Math.floor(Math.random() * 20) + 40,
-          trafficCondition: 'Clear'
-        });
+        initialLoc = route.pathCoordinates[0];
+      } else if (route && route.stops && route.stops.length > 0) {
+        if (route.stops[0].location && route.stops[0].location.lat) {
+          initialLoc = route.stops[0].location;
+        }
       }
     }
+    
+    await BusLocation.create({
+      bus: createdBus._id,
+      route: routeId || undefined,
+      currentLocation: initialLoc,
+      speed: Math.floor(Math.random() * 20) + 40,
+      trafficCondition: 'Clear'
+    });
 
     res.status(201).json(createdBus);
   } catch (error) {
@@ -147,6 +154,25 @@ const deleteBus = async (req, res) => {
   }
 };
 
+// @desc    Update route path coordinates
+// @route   PUT /api/buses/routes/:id/path
+// @access  Public
+const updateRoutePath = async (req, res) => {
+  try {
+    const { pathCoordinates } = req.body;
+    const route = await Route.findById(req.params.id);
+    if (route) {
+      route.pathCoordinates = pathCoordinates;
+      await route.save();
+      res.json({ message: 'Route path updated' });
+    } else {
+      res.status(404).json({ message: 'Route not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getRoutes,
   getLocations,
@@ -154,5 +180,6 @@ module.exports = {
   getBusById,
   createBus,
   updateBus,
-  deleteBus
+  deleteBus,
+  updateRoutePath
 };

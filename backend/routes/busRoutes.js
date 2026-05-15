@@ -7,12 +7,14 @@ const {
   getBusById,
   createBus,
   updateBus,
-  deleteBus
+  deleteBus,
+  updateRoutePath
 } = require('../controllers/busController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/routes/locations').get(getLocations);
 router.route('/routes').get(getRoutes);
+router.route('/routes/:id/path').put(updateRoutePath);
 
 router.route('/')
   .get(getBuses)
