@@ -689,11 +689,15 @@ const MapPageInner = () => {
                       traveledPath.push(snappedLocation);
                       remainingPath = [snappedLocation, ...routePath.slice(splitIdx + 1)];
 
+                      // STRICT FILTERING: Prevent ANY invalid points from reaching Google Maps API
+                      traveledPath = traveledPath.filter(pt => pt && typeof pt.lat === 'number' && typeof pt.lng === 'number' && !isNaN(pt.lat) && !isNaN(pt.lng));
+                      remainingPath = remainingPath.filter(pt => pt && typeof pt.lat === 'number' && typeof pt.lng === 'number' && !isNaN(pt.lat) && !isNaN(pt.lng));
+
                       const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
                       const opacity = isSelected ? 1 : 0.8;
 
-                      // Use a robust key that prevents setAt crashes by unmounting when the base path changes
-                      const groupKey = `paths-${bus.id}-${routePath.length}-${routePath[0].lat}-${routePath[routePath.length-1].lat}`;
+                      // Extremely robust key to force unmount if the path completely changes base reference
+                      const groupKey = `paths-${bus.id}-${traveledPath.length}-${remainingPath.length}`;
 
                       pathElements = (
                         <React.Fragment key={groupKey}>
