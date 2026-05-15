@@ -285,8 +285,56 @@ const MapPageInner = () => {
 
   const searchRouteSignature = searchResult ? `${searchResult.sourceSearch}-${searchResult.destSearch}-${searchResult.buses[0]?.route?.name}` : '';
 
-  // Removed DirectionsService API call to prevent Google Maps API overload.
-  // We already draw the route natively using globalPaths Polyline, so no additional requests are made.
+  // Fetch actual directions for the searched route
+  useEffect(() => {
+    if (searchResult && searchResult.buses.length > 0 && window.google) {
+      const bus = searchResult.buses[0];
+      let stops = bus.route.stops || [];
+      
+      if (stops.length > 0 && searchResult.sourceSearch && searchResult.destSearch && searchResult.sourceSearch !== 'your location') {
+        const sourceIndex = stops.findIndex(s => s && (s.includes(searchResult.sourceSearch) || searchResult.sourceSearch.includes(s)));
+        const destIndex = stops.findIndex(s => s && (s.includes(searchResult.destSearch) || searchResult.destSearch.includes(s)));
+        
+        if (sourceIndex !== -1 && destIndex !== -1 && sourceIndex < destIndex) {
+            stops = stops.slice(sourceIndex, destIndex + 1);
+        } else if (sourceIndex !== -1 && destIndex !== -1 && sourceIndex > destIndex) {
+            stops = stops.slice(destIndex, sourceIndex + 1).reverse();
+        }
+      }
+      
+      if (!stops || stops.length === 0) {
+        setDirectionsResponse(null);
+        return;
+      }
+
+      const originCoord = cityCoords[stops[0]];
+      const destCoord = cityCoords[stops[stops.length - 1]];
+      
+      const waypoints = stops.slice(1, -1).map(stop => ({
+        location: cityCoords[stop],
+        stopover: true
+      })).filter(wp => wp.location);
+
+      const directionsService = new window.google.maps.DirectionsService();
+      
+      directionsService.route({
+        origin: originCoord,
+        destination: destCoord,
+        waypoints: waypoints,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      }, (result, status) => {
+        if (status === window.google.maps.DirectionsStatus.OK) {
+          setDirectionsResponse(result);
+        } else {
+          console.error(`Directions request failed: ${status}`);
+          setDirectionsResponse(null);
+        }
+      });
+    } else {
+      setDirectionsResponse(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchRouteSignature]);
 
   // userBusDirections effect removed to prevent continuous Maps API overload loops
 
@@ -299,14 +347,16 @@ const MapPageInner = () => {
   }, []);
 
   const handleSmartAlertSave = async () => {
+    // Close modal INSTANTLY as requested
     setShowSmartAlertModal(false);
-    setAlertSavedMessage('alert is saved');
+    
+    // Set saving state but don't show message yet
     setIsSavingAlert(true);
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
       const token = localStorage.getItem('token');
-      await fetch(`${apiUrl}/api/alerts`, {
+      const response = await fetch(`${apiUrl}/api/alerts`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -321,12 +371,23 @@ const MapPageInner = () => {
           whatsappAlerts: true
         })
       });
-      setIsSavingAlert(false);
-      setTimeout(() => setAlertSavedMessage(''), 2500);
+      
+      if (response.ok) {
+        setIsSavingAlert(false);
+        setAlertSavedMessage('Smart Alert activated successfully!');
+        setTimeout(() => {
+          setAlertSavedMessage('');
+        }, 2000); // Increased slightly for visibility
+      } else {
+        setIsSavingAlert(false);
+        setAlertSavedMessage('Failed to save alert.');
+        setTimeout(() => setAlertSavedMessage(''), 1000);
+      }
     } catch (err) {
       console.error(err);
+      setAlertSavedMessage('Connection error. Check your internet.');
       setIsSavingAlert(false);
-      setTimeout(() => setAlertSavedMessage(''), 2500);
+      setTimeout(() => setAlertSavedMessage(''), 1000);
     }
   };
 
@@ -513,7 +574,20 @@ const MapPageInner = () => {
             zoomControl: true,
           }}
         >
-          {/* DirectionsRenderer removed to avoid setAt crash and limit API requests */}
+          {directionsResponse && (
+            <DirectionsRenderer 
+              directions={directionsResponse}
+              options={{
+                suppressMarkers: true,
+                polylineOptions: {
+                  strokeColor: '#3b82f6',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 6,
+                  zIndex: 1
+                }
+              }}
+            />
+          )}
           
 
           {userLocation && (
@@ -606,7 +680,9 @@ const MapPageInner = () => {
                                ? globalPaths[matchedGlobalKey] 
                                : null;
 
-             if (!baseRoutePath) return null;
+             if (searchResult && !baseRoutePath) {
+                 return null;
+             }
 
              let color = '#10B981';
              if (bus.trafficCondition === 'Moderate') color = '#F59E0B';
@@ -624,6 +700,8 @@ const MapPageInner = () => {
 
              const isSelected = currentSelectedBus && currentSelectedBus.id === bus.id;
              const isMatchedSearch = searchResult && searchResult.buses.some(b => b.id === bus.id);
+             
+             // Draw paths for all buses unless there's a search, then only draw matched buses. If a bus is specifically selected, draw it too.
              const shouldDrawPath = (!searchResult && !currentSelectedBus) || isMatchedSearch || isSelected;
              
              let pathElements = null;
@@ -631,82 +709,48 @@ const MapPageInner = () => {
 
              if (shouldDrawPath) {
                   let routePath = baseRoutePath;
-                  let isReversed = false;
                   
                   if (searchResult && routePath) {
-                      if (searchResult.sourceSearch && searchResult.destSearch && searchResult.sourceSearch !== 'your location') {
-                          const sCoord = getCityCoord(searchResult.sourceSearch);
-                          const dCoord = getCityCoord(searchResult.destSearch);
-                          if (sCoord && dCoord) {
-                              let sIdx = 0, dIdx = routePath.length - 1;
-                              let sMinDist = Infinity, dMinDist = Infinity;
-                              routePath.forEach((pt, idx) => {
-                                  const d1 = Math.pow(pt.lat - sCoord.lat, 2) + Math.pow(pt.lng - sCoord.lng, 2);
-                                  if (d1 < sMinDist) { sMinDist = d1; sIdx = idx; }
-                                  const d2 = Math.pow(pt.lat - dCoord.lat, 2) + Math.pow(pt.lng - dCoord.lng, 2);
-                                  if (d2 < dMinDist) { dMinDist = d2; dIdx = idx; }
-                              });
-                              if (sIdx > dIdx) isReversed = true;
-                          }
-                      }
                       routePath = trimPathBySearch(routePath, searchResult);
                   }
 
-                  if (routePath && routePath.length > 1) {
+                  if (routePath && routePath.length > 0) {
+                      let splitIdx = 0;
+                      let minDist = Infinity;
+                      routePath.forEach((pt, idx) => {
+                          const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
+                          if (dist < minDist) {
+                              minDist = dist;
+                              splitIdx = idx;
+                          }
+                      });
+                      
+                      if (routePath[splitIdx]) {
+                          snappedLocation = routePath[splitIdx];
+                      }
+                      
+                      let traveledPath = [];
+                      let remainingPath = [];
+                      
+                      traveledPath = routePath.slice(0, splitIdx + 1);
+                      traveledPath.push(snappedLocation);
+                      remainingPath = [snappedLocation, ...routePath.slice(splitIdx + 1)];
+
                       const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
                       const opacity = isSelected ? 1 : 0.8;
-                      
-                       let splitIdx = 0;
-                       if (!isReversed && bus.direction !== 'backward' && bus.pathIndex !== undefined && bus.pathIndex < routePath.length) {
-                           splitIdx = bus.pathIndex;
-                       } else {
-                           let minDist = Infinity;
-                           let step = Math.max(1, Math.floor(routePath.length / 200)); 
-                           for(let idx = 0; idx < routePath.length; idx += step) {
-                               const pt = routePath[idx];
-                               const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
-                               if (dist < minDist) {
-                                   minDist = dist;
-                                   splitIdx = idx;
-                               }
-                           }
-                       }
-                       
-                       if (routePath[splitIdx]) {
-                           snappedLocation = routePath[splitIdx];
-                       }
 
-                       const part1 = routePath.slice(0, splitIdx + 1);
-                       const part2 = [snappedLocation, ...routePath.slice(splitIdx + 1)];
-                       
-                       // A bus is physically going backwards vs the visible routePath if:
-                       // 1. The routePath is reversed (user searched backwards) AND bus is going forward
-                       // 2. The routePath is normal AND bus is going backward
-                       const effectiveReversed = (isReversed && bus.direction !== 'backward') || (!isReversed && bus.direction === 'backward');
-                       
-                       const traveledPath = effectiveReversed ? part2 : part1;
-                       const remainingPath = effectiveReversed ? part1 : part2;
-
-                       const groupKey = `paths-${bus.id}-${routePath.length}-${routePath[0].lat}-${routePath[routePath.length-1].lat}`;
-
-                       pathElements = (
-                         <React.Fragment key={groupKey}>
-                           {traveledPath.length > 1 && (
-                             <PolylineF 
-                               key={`travel-${bus.id}`}
-                               path={traveledPath}
-                               options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
-                             />
-                           )}
-                           {remainingPath.length > 1 && (
-                             <PolylineF 
-                               key={`remain-${bus.id}`}
-                               path={remainingPath}
-                               options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
-                             />
-                           )}
-                         </React.Fragment>
-                       );
+                      pathElements = (
+                        <React.Fragment key={`paths-${bus.id}`}>
+                          <PolylineF 
+                            path={traveledPath}
+                            options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
+                          />
+                          <PolylineF 
+                            path={remainingPath}
+                            options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
+                          />
+                        </React.Fragment>
+                      );
                   }
              }
 
@@ -725,69 +769,69 @@ const MapPageInner = () => {
                    }}
                    zIndex={100}
                  />
-                 {isSelected && (
-                   <InfoWindowF
-                     position={snappedLocation}
-                     onCloseClick={() => {
-                       setSelectedBus(null);
-                       if (map && !searchResult) {
-                         map.panTo(defaultCenter);
-                         map.setZoom(8);
-                       }
-                     }}
-                     options={{ pixelOffset: new window.google.maps.Size(0, -20) }}
-                   >
-                     <div className="custom-info-window">
-                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                         <h3 style={{ margin: 0 }}>{bus.busNumber}</h3>
-                         <button 
-                           onClick={() => {
-                             setSelectedBus(null);
-                             window.location.href = '/map';
-                           }} 
-                           style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontWeight: 'bold' }}
-                         >
-                           Reset View
-                         </button>
-                       </div>
-                       <p style={{ margin: '5px 0' }}><strong>Active Route:</strong> {bus.route.name}</p>
-                       <div className="info-row">
-                         <span className="info-label">Speed:</span>
-                         <span>{bus.speed.toFixed(1)} km/h</span>
-                       </div>
-                       <div className="info-row">
-                         <span className="info-label">Traffic:</span>
-                         <span style={{ 
-                           color: bus.trafficCondition === 'Clear' ? '#10B981' : (bus.trafficCondition === 'Heavy' ? '#EF4444' : '#F59E0B'),
-                           fontWeight: 'bold'
-                         }}>
-                           {bus.trafficCondition}
-                         </span>
-                       </div>
-                       <div className="info-row" style={{ marginTop: '5px', paddingTop: '5px', borderTop: '1px solid #e2e8f0'}}>
-                         <span className="info-label"><FiClock style={{marginBottom: '-2px'}}/> Dest. ETA:</span>
-                         <span>{bus.pathIndex !== undefined ? Math.max(5, Math.floor((1 - (bus.pathIndex / 100)) * 45)) : 15} mins</span>
-                       </div>
-                       <button 
-                         style={{ width: '100%', marginTop: '10px', padding: '6px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }}
-                         onClick={() => setShowSmartAlertModal(true)}
-                       >
-                         <FiBell /> Smart Alert
-                       </button>
-                     </div>
-                   </InfoWindowF>
-                 )}
                </React.Fragment>
              );
            })}
 
-          </GoogleMap>
+          {currentSelectedBus && (
+            <InfoWindowF
+              position={currentSelectedBus.currentLocation}
+              onCloseClick={() => {
+                setSelectedBus(null);
+                if (map && !searchResult) {
+                  map.panTo(defaultCenter);
+                  map.setZoom(8);
+                }
+              }}
+              options={{ pixelOffset: new window.google.maps.Size(0, -20) }}
+            >
+              <div className="custom-info-window">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ margin: 0 }}>{currentSelectedBus.busNumber}</h3>
+                  <button 
+                    onClick={() => {
+                      setSelectedBus(null);
+                      window.location.href = '/map';
+                    }} 
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#ef4444', fontWeight: 'bold' }}
+                  >
+                    Reset View
+                  </button>
+                </div>
+                <p style={{ margin: '5px 0' }}><strong>Route:</strong> {currentSelectedBus.route.name}</p>
+                <div className="info-row">
+                  <span className="info-label">Speed:</span>
+                  <span>{currentSelectedBus.speed.toFixed(1)} km/h</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Traffic:</span>
+                  <span style={{ 
+                    color: currentSelectedBus.trafficCondition === 'Clear' ? '#10B981' : (currentSelectedBus.trafficCondition === 'Heavy' ? '#EF4444' : '#F59E0B'),
+                    fontWeight: 'bold'
+                  }}>
+                    {currentSelectedBus.trafficCondition}
+                  </span>
+                </div>
+                <div className="info-row" style={{ marginTop: '5px', paddingTop: '5px', borderTop: '1px solid #e2e8f0'}}>
+                  <span className="info-label"><FiClock style={{marginBottom: '-2px'}}/> Next Stop ETA:</span>
+                  <span>{Math.floor(Math.random() * 15) + 5} mins</span>
+                </div>
+                <button 
+                  style={{ width: '100%', marginTop: '10px', padding: '6px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }}
+                  onClick={() => setShowSmartAlertModal(true)}
+                >
+                  <FiBell /> Smart Alert
+                </button>
+              </div>
+            </InfoWindowF>
+          )}
+
+        </GoogleMap>
       </div>
 
-      <div className="mobile-sidebars-wrapper">
-        {(searchResult || currentSelectedBus) && (
-          <div className="map-sidebar-left glass-panel">
-            <div className="sidebar-content">
+      {(searchResult || currentSelectedBus) && (
+        <div className="map-sidebar-left glass-panel">
+          <div className="sidebar-content">
             <div className="panel-header">
               <span>{currentSelectedBus ? 'Active Route & ETA' : 'Route Stops & ETA'}</span>
             </div>
@@ -986,10 +1030,6 @@ const MapPageInner = () => {
             </>
           )}
         </div>
-      </div>
-
-
-
       </div>
 
       <button 
