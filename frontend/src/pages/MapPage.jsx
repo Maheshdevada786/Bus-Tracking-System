@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF, PolylineF, InfoWindowF, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, MarkerF, Polyline, InfoWindowF, DirectionsRenderer } from '@react-google-maps/api';
 import { FiSearch, FiX, FiLayers, FiMapPin, FiClock, FiAlertCircle, FiBell } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import './MapPage.css';
@@ -617,7 +617,14 @@ const MapPageInner = () => {
 
           {displayBuses.map((bus) => {
              const routeNameLower = bus.route.name ? bus.route.name.toLowerCase() : '';
-             if (!bus.currentLocation || typeof bus.currentLocation.lat !== 'number' || typeof bus.currentLocation.lng !== 'number') {
+             
+             if (
+                !bus.currentLocation || 
+                typeof bus.currentLocation.lat !== 'number' || 
+                typeof bus.currentLocation.lng !== 'number' ||
+                isNaN(bus.currentLocation.lat) || 
+                isNaN(bus.currentLocation.lng)
+             ) {
                  return null;
              }
 
@@ -691,14 +698,14 @@ const MapPageInner = () => {
                       pathElements = (
                         <React.Fragment key={groupKey}>
                           {traveledPath.length > 1 && (
-                            <PolylineF 
+                            <Polyline 
                               key={`travel-${bus.id}-${traveledPath.length}`}
                               path={traveledPath}
                               options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
                             />
                           )}
                           {remainingPath.length > 1 && (
-                            <PolylineF 
+                            <Polyline 
                               key={`remain-${bus.id}-${remainingPath.length}`}
                               path={remainingPath}
                               options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
