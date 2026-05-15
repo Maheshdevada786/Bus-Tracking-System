@@ -95,7 +95,8 @@
   padding: 0.5rem 1.2rem;
   @apply font-semibold;
   @apply text-white;
-  text-decoration: none;
+  color: #ffffff;
+  text-decoration:none;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -118,7 +119,7 @@
 }
 
 .nav-btn-glass:hover {
-  color: #fff;
+  color: #029deb;
   border-color: rgba(0, 255, 255, 0.8);
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), inset 0 0 15px rgba(0, 255, 255, 0.4);
   transform: translateY(-2px);
