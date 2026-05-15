@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, PolylineF, InfoWindowF, DirectionsRenderer } from '@react-google-maps/api';
 import { FiSearch, FiX, FiLayers, FiMapPin, FiClock, FiAlertCircle, FiBell } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
@@ -112,7 +112,29 @@ const MapPageInner = () => {
     return buses.find(b => b.id === selectedBus.id) || selectedBus;
   }, [buses, selectedBus]);
 
-  // Map overloaded loops removed for single request response
+  const trimPathBySearch = useCallback((path, searchRes) => {
+      if (!searchRes || !searchRes.sourceSearch || !searchRes.destSearch || searchRes.sourceSearch === 'your location') return path;
+      const sCoord = getCityCoord(searchRes.sourceSearch);
+      const dCoord = getCityCoord(searchRes.destSearch);
+      if (!sCoord || !dCoord || !path || path.length < 2) return path;
+
+      let sIdx = 0, dIdx = path.length - 1;
+      let sMinDist = Infinity, dMinDist = Infinity;
+      
+      path.forEach((pt, idx) => {
+          const d1 = Math.pow(pt.lat - sCoord.lat, 2) + Math.pow(pt.lng - sCoord.lng, 2);
+          if (d1 < sMinDist) { sMinDist = d1; sIdx = idx; }
+          
+          const d2 = Math.pow(pt.lat - dCoord.lat, 2) + Math.pow(pt.lng - dCoord.lng, 2);
+          if (d2 < dMinDist) { dMinDist = d2; dIdx = idx; }
+      });
+      
+      if (sIdx <= dIdx) {
+          return path.slice(sIdx, dIdx + 1);
+      } else {
+          return path.slice(dIdx, sIdx + 1).reverse();
+      }
+  }, []);
 
   useEffect(() => {
     if (userLocationSelected && userLocation && window.google) {
@@ -263,10 +285,59 @@ const MapPageInner = () => {
 
   const searchRouteSignature = searchResult ? `${searchResult.sourceSearch}-${searchResult.destSearch}-${searchResult.buses[0]?.route?.name}` : '';
 
-  // Removed DirectionsService API call to prevent Google Maps API overload and setAt crashes.
-  // We already draw the route natively using globalPaths Polyline, so no additional requests are made.
+  // Fetch actual directions for the searched route
+  useEffect(() => {
+    if (searchResult && searchResult.buses.length > 0 && window.google) {
+      const bus = searchResult.buses[0];
+      let stops = bus.route.stops || [];
+      
+      if (stops.length > 0 && searchResult.sourceSearch && searchResult.destSearch && searchResult.sourceSearch !== 'your location') {
+        const sourceIndex = stops.findIndex(s => s && (s.includes(searchResult.sourceSearch) || searchResult.sourceSearch.includes(s)));
+        const destIndex = stops.findIndex(s => s && (s.includes(searchResult.destSearch) || searchResult.destSearch.includes(s)));
+        
+        if (sourceIndex !== -1 && destIndex !== -1 && sourceIndex < destIndex) {
+            stops = stops.slice(sourceIndex, destIndex + 1);
+        } else if (sourceIndex !== -1 && destIndex !== -1 && sourceIndex > destIndex) {
+            stops = stops.slice(destIndex, sourceIndex + 1).reverse();
+        }
+      }
+      
+      if (!stops || stops.length === 0) {
+        setDirectionsResponse(null);
+        return;
+      }
 
-  // Get directions from user to nearest station
+      const originCoord = cityCoords[stops[0]];
+      const destCoord = cityCoords[stops[stops.length - 1]];
+      
+      const waypoints = stops.slice(1, -1).map(stop => ({
+        location: cityCoords[stop],
+        stopover: true
+      })).filter(wp => wp.location);
+
+      const directionsService = new window.google.maps.DirectionsService();
+      
+      directionsService.route({
+        origin: originCoord,
+        destination: destCoord,
+        waypoints: waypoints,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      }, (result, status) => {
+        if (status === window.google.maps.DirectionsStatus.OK) {
+          setDirectionsResponse(result);
+        } else {
+          console.error(`Directions request failed: ${status}`);
+          setDirectionsResponse(null);
+        }
+      });
+    } else {
+      setDirectionsResponse(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchRouteSignature]);
+
+  // userBusDirections effect removed to prevent continuous Maps API overload loops
+
   const onLoad = useCallback(function callback(mapInstance) {
     setMap(mapInstance);
   }, []);
@@ -503,20 +574,29 @@ const MapPageInner = () => {
             zoomControl: true,
           }}
         >
-          {/* DirectionsRenderer removed to guarantee map stability and prevent setAt crashes */}
+          {directionsResponse && (
+            <DirectionsRenderer 
+              directions={directionsResponse}
+              options={{
+                suppressMarkers: true,
+                polylineOptions: {
+                  strokeColor: '#3b82f6',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 6,
+                  zIndex: 1
+                }
+              }}
+            />
+          )}
+          
 
           {userLocation && (
             <MarkerF
               position={userLocation}
-              icon={{
-                path: window.google ? window.google.maps.SymbolPath.CIRCLE : 0,
-                fillColor: '#3b82f6',
-                fillOpacity: 1,
-                strokeWeight: 2,
-                strokeColor: '#ffffff',
-                scale: 8,
-              }}
-              zIndex={50}
+              icon={userIcon}
+              zIndex={200}
+              title="Your Location"
+              onClick={() => setUserLocationSelected(true)}
             />
           )}
 
@@ -595,23 +675,12 @@ const MapPageInner = () => {
 
           {displayBuses.map((bus) => {
              const routeNameLower = bus.route.name ? bus.route.name.toLowerCase() : '';
-             
-             if (
-                !bus.currentLocation || 
-                typeof bus.currentLocation.lat !== 'number' || 
-                typeof bus.currentLocation.lng !== 'number' ||
-                isNaN(bus.currentLocation.lat) || 
-                isNaN(bus.currentLocation.lng)
-             ) {
-                 return null;
-             }
-
              const matchedGlobalKey = Object.keys(globalPaths).find(k => k.toLowerCase() === routeNameLower);
              let baseRoutePath = matchedGlobalKey && globalPaths[matchedGlobalKey].length > 1 
                                ? globalPaths[matchedGlobalKey] 
-                               : (bus.route && bus.route.pathCoordinates ? bus.route.pathCoordinates : null);
+                               : null;
 
-             if (!baseRoutePath) {
+             if (searchResult && !baseRoutePath) {
                  return null;
              }
 
@@ -619,13 +688,6 @@ const MapPageInner = () => {
              if (bus.trafficCondition === 'Moderate') color = '#F59E0B';
              if (bus.trafficCondition === 'Heavy') color = '#EF4444';
              
-             const getRouteColor = (name) => {
-                 let hash = 0;
-                 for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-                 return `hsl(${Math.abs(hash) % 360}, 85%, 50%)`;
-             };
-             const routeColor = getRouteColor(bus.route.name || String(bus.id));
-
              const busIconObject = {
                path: "M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z",
                fillColor: color,
@@ -645,45 +707,51 @@ const MapPageInner = () => {
              let pathElements = null;
              let snappedLocation = bus.currentLocation;
 
-             if (shouldDrawPath && baseRoutePath && baseRoutePath.length > 0) {
-                 const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
-                 
-                 let splitIdx = 0;
-                 if (bus.pathIndex !== undefined && bus.pathIndex < baseRoutePath.length) {
-                     splitIdx = bus.pathIndex;
-                 } else {
-                     let minDist = Infinity;
-                     let step = Math.max(1, Math.floor(baseRoutePath.length / 200)); 
-                     for(let idx = 0; idx < baseRoutePath.length; idx += step) {
-                         const pt = baseRoutePath[idx];
-                         const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
-                         if (dist < minDist) {
-                             minDist = dist;
-                             splitIdx = idx;
-                         }
-                     }
-                 }
+             if (shouldDrawPath) {
+                  let routePath = baseRoutePath;
+                  
+                  if (searchResult && routePath) {
+                      routePath = trimPathBySearch(routePath, searchResult);
+                  }
 
-                 if (baseRoutePath[splitIdx]) {
-                     snappedLocation = baseRoutePath[splitIdx];
-                 }
+                  if (routePath && routePath.length > 0) {
+                      let splitIdx = 0;
+                      let minDist = Infinity;
+                      routePath.forEach((pt, idx) => {
+                          const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
+                          if (dist < minDist) {
+                              minDist = dist;
+                              splitIdx = idx;
+                          }
+                      });
+                      
+                      if (routePath[splitIdx]) {
+                          snappedLocation = routePath[splitIdx];
+                      }
+                      
+                      let traveledPath = [];
+                      let remainingPath = [];
+                      
+                      traveledPath = routePath.slice(0, splitIdx + 1);
+                      traveledPath.push(snappedLocation);
+                      remainingPath = [snappedLocation, ...routePath.slice(splitIdx + 1)];
 
-                 const traveledPath = baseRoutePath.slice(0, splitIdx + 1);
-                 traveledPath.push(snappedLocation);
-                 const remainingPath = [snappedLocation, ...baseRoutePath.slice(splitIdx + 1)];
+                      const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
+                      const opacity = isSelected ? 1 : 0.8;
 
-                 pathElements = (
-                   <React.Fragment key={`paths-${bus.id}`}>
-                     <PolylineF 
-                       path={traveledPath}
-                       options={{ strokeColor: '#9ca3af', strokeOpacity: 0.8, strokeWeight: weight, zIndex: 6 }}
-                     />
-                     <PolylineF 
-                       path={remainingPath}
-                       options={{ strokeColor: routeColor, strokeOpacity: 1, strokeWeight: weight, zIndex: 7 }}
-                     />
-                   </React.Fragment>
-                 );
+                      pathElements = (
+                        <React.Fragment key={`paths-${bus.id}`}>
+                          <PolylineF 
+                            path={traveledPath}
+                            options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
+                          />
+                          <PolylineF 
+                            path={remainingPath}
+                            options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
+                          />
+                        </React.Fragment>
+                      );
+                  }
              }
 
              return (
@@ -980,67 +1048,47 @@ const MapPageInner = () => {
       </button>
 
       {showSmartAlertModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 3000 }} className="flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="relative bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-hidden">
-            {/* Glowing orbs */}
-            <div className="absolute top-[-20%] left-[-10%] w-64 h-64 rounded-full bg-blue-500/20 blur-[60px] pointer-events-none z-[-1]"></div>
-            <div className="absolute bottom-[-20%] right-[-10%] w-64 h-64 rounded-full bg-emerald-500/20 blur-[60px] pointer-events-none z-[-1]"></div>
-
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-3 m-0">
-                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-400/30 shadow-inner">
-                  <FiBell className="text-blue-300" />
-                </div>
-                Smart Alert
-              </h2>
-              <button 
-                onClick={() => setShowSmartAlertModal(false)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-rose-500/80 hover:border-rose-400 border border-transparent text-white/70 hover:text-white flex items-center justify-center transition-all shadow-md group"
-              >
-                <FiX className="group-hover:scale-110 transition-transform" />
-              </button>
-            </div>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }}>
+          <div className="glass-panel" style={{ width: '400px', padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.95)' }}>
+            <h2 style={{ marginTop: 0, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FiBell /> Smart Alert Setup
+            </h2>
+            <p style={{ fontSize: '0.9rem', color: '#64748b' }}>Get instant notifications via Email or WhatsApp when {selectedBus?.busNumber || 'your bus'} approaches stops.</p>
             
-            <p className="text-sm text-slate-300 mb-6 leading-relaxed">
-              Get instant notifications via Email or WhatsApp when <strong className="text-white">{selectedBus?.busNumber || 'your bus'}</strong> approaches stops.
-            </p>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-blue-200 mb-1.5 ml-1">Email Address</label>
-                <input 
-                  type="email" 
-                  value={smartAlertEmail} 
-                  onChange={(e) => setSmartAlertEmail(e.target.value)} 
-                  placeholder="Enter your email"
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-blue-200 mb-1.5 ml-1">WhatsApp Number</label>
-                <input 
-                  type="text" 
-                  value={smartAlertPhone}
-                  onChange={(e) => setSmartAlertPhone(e.target.value)}
-                  placeholder="+91 "
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner"
-                />
-              </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '5px', color: '#334155' }}>Email Address</label>
+              <input 
+                type="email" 
+                value={smartAlertEmail} 
+                onChange={(e) => setSmartAlertEmail(e.target.value)} 
+                placeholder="Enter your email"
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
+              />
             </div>
 
-            <div className="mt-8 flex gap-3">
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '5px', color: '#334155' }}>WhatsApp Number</label>
+              <input 
+                type="text" 
+                value={smartAlertPhone}
+                onChange={(e) => setSmartAlertPhone(e.target.value)}
+                placeholder="+91 "
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button 
                 onClick={() => setShowSmartAlertModal(false)}
                 disabled={isSavingAlert}
-                className="flex-1 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                style={{ padding: '8px 16px', border: 'none', background: '#e2e8f0', color: '#334155', borderRadius: '8px', cursor: isSavingAlert ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: isSavingAlert ? 0.7 : 1 }}
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSmartAlertSave}
                 disabled={isSavingAlert}
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold transition-all shadow-lg hover:shadow-blue-500/50 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                style={{ padding: '8px 16px', border: 'none', background: 'var(--primary)', color: 'white', borderRadius: '8px', cursor: isSavingAlert ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: isSavingAlert ? 0.7 : 1 }}
               >
                 {isSavingAlert ? 'Saving...' : 'Save Alert'}
               </button>
