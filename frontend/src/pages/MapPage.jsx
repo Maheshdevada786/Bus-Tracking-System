@@ -656,53 +656,57 @@ const MapPageInner = () => {
                       const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
                       const opacity = isSelected ? 1 : 0.8;
                       
-                      let splitIdx = 0;
-                      if (!isReversed && bus.pathIndex !== undefined && bus.pathIndex < routePath.length) {
-                          splitIdx = bus.pathIndex;
-                      } else {
-                          let minDist = Infinity;
-                          let step = Math.max(1, Math.floor(routePath.length / 200)); 
-                          for(let idx = 0; idx < routePath.length; idx += step) {
-                              const pt = routePath[idx];
-                              const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
-                              if (dist < minDist) {
-                                  minDist = dist;
-                                  splitIdx = idx;
-                              }
-                          }
-                      }
-                      
-                      if (routePath[splitIdx]) {
-                          snappedLocation = routePath[splitIdx];
-                      }
+                       let splitIdx = 0;
+                       if (!isReversed && bus.direction !== 'backward' && bus.pathIndex !== undefined && bus.pathIndex < routePath.length) {
+                           splitIdx = bus.pathIndex;
+                       } else {
+                           let minDist = Infinity;
+                           let step = Math.max(1, Math.floor(routePath.length / 200)); 
+                           for(let idx = 0; idx < routePath.length; idx += step) {
+                               const pt = routePath[idx];
+                               const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
+                               if (dist < minDist) {
+                                   minDist = dist;
+                                   splitIdx = idx;
+                               }
+                           }
+                       }
+                       
+                       if (routePath[splitIdx]) {
+                           snappedLocation = routePath[splitIdx];
+                       }
 
-                      const part1 = routePath.slice(0, splitIdx + 1);
-                      const part2 = routePath.slice(splitIdx);
-                      
-                      // For reversed path (bus physically going backwards vs route)
-                      const traveledPath = isReversed ? part2 : part1;
-                      const remainingPath = isReversed ? part1 : part2;
+                       const part1 = routePath.slice(0, splitIdx + 1);
+                       const part2 = [snappedLocation, ...routePath.slice(splitIdx + 1)];
+                       
+                       // A bus is physically going backwards vs the visible routePath if:
+                       // 1. The routePath is reversed (user searched backwards) AND bus is going forward
+                       // 2. The routePath is normal AND bus is going backward
+                       const effectiveReversed = (isReversed && bus.direction !== 'backward') || (!isReversed && bus.direction === 'backward');
+                       
+                       const traveledPath = effectiveReversed ? part2 : part1;
+                       const remainingPath = effectiveReversed ? part1 : part2;
 
-                      const groupKey = `paths-${bus.id}-${routePath.length}-${routePath[0].lat}-${routePath[routePath.length-1].lat}`;
+                       const groupKey = `paths-${bus.id}-${routePath.length}-${routePath[0].lat}-${routePath[routePath.length-1].lat}`;
 
-                      pathElements = (
-                        <React.Fragment key={groupKey}>
-                          {traveledPath.length > 1 && (
-                            <PolylineF 
-                              key={`travel-${bus.id}`}
-                              path={traveledPath}
-                              options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
-                            />
-                          )}
-                          {remainingPath.length > 1 && (
-                            <PolylineF 
-                              key={`remain-${bus.id}`}
-                              path={remainingPath}
-                              options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
-                            />
-                          )}
-                        </React.Fragment>
-                      );
+                       pathElements = (
+                         <React.Fragment key={groupKey}>
+                           {traveledPath.length > 1 && (
+                             <PolylineF 
+                               key={`travel-${bus.id}`}
+                               path={traveledPath}
+                               options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
+                             />
+                           )}
+                           {remainingPath.length > 1 && (
+                             <PolylineF 
+                               key={`remain-${bus.id}`}
+                               path={remainingPath}
+                               options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
+                             />
+                           )}
+                         </React.Fragment>
+                       );
                   }
              }
 

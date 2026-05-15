@@ -99,14 +99,25 @@ const generateMockBuses = (paths) => {
   let idCounter = 1;
 
   routes.forEach(route => {
+    // Generate 2 forward buses and 2 backward buses per route
     for (let i = 0; i < 4; i++) {
       const pathSource = paths[route.name] && paths[route.name].length > 1 ? paths[route.name] : route.path;
       if (!pathSource || pathSource.length < 2) continue;
       
+      const isBackward = i >= 2;
+      
       const pathIndex = Math.floor(Math.random() * (pathSource.length - 1));
       const progress = Math.random();
-      const startNode = pathSource[pathIndex];
-      const endNode = pathSource[pathIndex + 1];
+      
+      let startNode, endNode;
+      if (isBackward) {
+          startNode = pathSource[pathIndex + 1] || pathSource[pathIndex];
+          endNode = pathSource[pathIndex];
+      } else {
+          startNode = pathSource[pathIndex];
+          endNode = pathSource[pathIndex + 1] || pathSource[pathIndex];
+      }
+      
       const lat = startNode.lat + (endNode.lat - startNode.lat) * progress;
       const lng = startNode.lng + (endNode.lng - startNode.lng) * progress;
 
@@ -118,7 +129,8 @@ const generateMockBuses = (paths) => {
         speed: Math.floor(Math.random() * 5) + 10,
         trafficCondition: traffic[Math.floor(Math.random() * traffic.length)],
         pathIndex,
-        progress
+        progress,
+        direction: isBackward ? 'backward' : 'forward'
       });
     }
   });
@@ -357,39 +369,63 @@ export const BusProvider = ({ children }) => {
             ];
         }
         
-        let { pathIndex, progress } = bus;
+        let { pathIndex, progress, direction } = bus;
         if (pathIndex === undefined) pathIndex = 0;
         if (progress === undefined) progress = 0;
+        if (!direction) direction = 'forward';
 
         const trafficMultiplier = bus.trafficCondition === 'Heavy' ? 0.05 : (bus.trafficCondition === 'Moderate' ? 0.1 : 0.2);
         
-        // When using high-res paths, we have many points close together. We need to normalize speed based on node distances.
-        const startNode = currentPathSource[pathIndex];
-        const endNode = currentPathSource[pathIndex + 1] || currentPathSource[pathIndex];
+        let startNode, endNode;
+        if (direction === 'backward') {
+            startNode = currentPathSource[pathIndex + 1] || currentPathSource[pathIndex];
+            endNode = currentPathSource[pathIndex];
+        } else {
+            startNode = currentPathSource[pathIndex];
+            endNode = currentPathSource[pathIndex + 1] || currentPathSource[pathIndex];
+        }
         
         // Approximate distance between startNode and endNode in degrees
         const distSq = Math.pow(endNode.lat - startNode.lat, 2) + Math.pow(endNode.lng - startNode.lng, 2);
         const dist = Math.sqrt(distSq) || 0.0001; 
         
         // Standardize step progress based on distance to move at uniform real-world speed
-        const baseSpeed = bus.speed * trafficMultiplier * 0.000155; // Tunable scaling factor for increased visible speed
+        const baseSpeed = bus.speed * trafficMultiplier * 0.000155; 
         const stepProgress = baseSpeed / dist;
         
         progress += stepProgress;
 
-        while (progress >= 1) {
-          progress -= 1;
-          pathIndex++;
-          if (pathIndex >= currentPathSource.length - 1) {
-             pathIndex = 0;
-             progress = 0;
-             break;
-          }
+        if (direction === 'backward') {
+            while (progress >= 1) {
+              progress -= 1;
+              pathIndex--;
+              if (pathIndex < 0) {
+                 pathIndex = currentPathSource.length - 2;
+                 progress = 0;
+                 break;
+              }
+            }
+        } else {
+            while (progress >= 1) {
+              progress -= 1;
+              pathIndex++;
+              if (pathIndex >= currentPathSource.length - 1) {
+                 pathIndex = 0;
+                 progress = 0;
+                 break;
+              }
+            }
         }
         
         // Get fresh references for current calculation
-        const currentStart = currentPathSource[pathIndex];
-        const currentEnd = currentPathSource[pathIndex + 1] || currentPathSource[pathIndex];
+        let currentStart, currentEnd;
+        if (direction === 'backward') {
+            currentStart = currentPathSource[pathIndex + 1] || currentPathSource[pathIndex];
+            currentEnd = currentPathSource[pathIndex];
+        } else {
+            currentStart = currentPathSource[pathIndex];
+            currentEnd = currentPathSource[pathIndex + 1] || currentPathSource[pathIndex];
+        }
         
         const lat = currentStart.lat + (currentEnd.lat - currentStart.lat) * progress;
         const lng = currentStart.lng + (currentEnd.lng - currentStart.lng) * progress;
