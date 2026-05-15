@@ -703,14 +703,14 @@ const MapPageInner = () => {
                         <React.Fragment key={groupKey}>
                           {traveledPath.length > 1 && (
                             <Polyline 
-                              key={`travel-${bus.id}-${traveledPath.length}`}
+                              key={`travel-${bus.id}-${snappedLocation.lat}-${snappedLocation.lng}`}
                               path={traveledPath}
                               options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
                             />
                           )}
                           {remainingPath.length > 1 && (
                             <Polyline 
-                              key={`remain-${bus.id}-${remainingPath.length}`}
+                              key={`remain-${bus.id}-${snappedLocation.lat}-${snappedLocation.lng}`}
                               path={remainingPath}
                               options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
                             />
