@@ -285,59 +285,10 @@ const MapPageInner = () => {
 
   const searchRouteSignature = searchResult ? `${searchResult.sourceSearch}-${searchResult.destSearch}-${searchResult.buses[0]?.route?.name}` : '';
 
-  // Fetch actual directions for the searched route
-  useEffect(() => {
-    if (searchResult && searchResult.buses.length > 0 && window.google) {
-      const bus = searchResult.buses[0];
-      let stops = bus.route.stops || [];
-      
-      if (stops.length > 0 && searchResult.sourceSearch && searchResult.destSearch && searchResult.sourceSearch !== 'your location') {
-        const sourceIndex = stops.findIndex(s => s && (s.includes(searchResult.sourceSearch) || searchResult.sourceSearch.includes(s)));
-        const destIndex = stops.findIndex(s => s && (s.includes(searchResult.destSearch) || searchResult.destSearch.includes(s)));
-        
-        if (sourceIndex !== -1 && destIndex !== -1 && sourceIndex < destIndex) {
-            stops = stops.slice(sourceIndex, destIndex + 1);
-        } else if (sourceIndex !== -1 && destIndex !== -1 && sourceIndex > destIndex) {
-            stops = stops.slice(destIndex, sourceIndex + 1).reverse();
-        }
-      }
-      
-      if (!stops || stops.length === 0) {
-        setDirectionsResponse(null);
-        return;
-      }
+  // Removed DirectionsService API call to prevent Google Maps API overload and setAt crashes.
+  // We already draw the route natively using globalPaths Polyline, so no additional requests are made.
 
-      const originCoord = cityCoords[stops[0]];
-      const destCoord = cityCoords[stops[stops.length - 1]];
-      
-      const waypoints = stops.slice(1, -1).map(stop => ({
-        location: cityCoords[stop],
-        stopover: true
-      })).filter(wp => wp.location);
-
-      const directionsService = new window.google.maps.DirectionsService();
-      
-      directionsService.route({
-        origin: originCoord,
-        destination: destCoord,
-        waypoints: waypoints,
-        travelMode: window.google.maps.TravelMode.DRIVING,
-      }, (result, status) => {
-        if (status === window.google.maps.DirectionsStatus.OK) {
-          setDirectionsResponse(result);
-        } else {
-          console.error(`Directions request failed: ${status}`);
-          setDirectionsResponse(null);
-        }
-      });
-    } else {
-      setDirectionsResponse(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchRouteSignature]);
-
-  // userBusDirections effect removed to prevent continuous Maps API overload loops
-
+  // Get directions from user to nearest station
   const onLoad = useCallback(function callback(mapInstance) {
     setMap(mapInstance);
   }, []);
@@ -574,29 +525,20 @@ const MapPageInner = () => {
             zoomControl: true,
           }}
         >
-          {directionsResponse && (
-            <DirectionsRenderer 
-              directions={directionsResponse}
-              options={{
-                suppressMarkers: true,
-                polylineOptions: {
-                  strokeColor: '#3b82f6',
-                  strokeOpacity: 0.8,
-                  strokeWeight: 6,
-                  zIndex: 1
-                }
-              }}
-            />
-          )}
-          
+          {/* DirectionsRenderer removed to guarantee map stability and prevent setAt crashes */}
 
           {userLocation && (
             <MarkerF
               position={userLocation}
-              icon={userIcon}
-              zIndex={200}
-              title="Your Location"
-              onClick={() => setUserLocationSelected(true)}
+              icon={{
+                path: window.google ? window.google.maps.SymbolPath.CIRCLE : 0,
+                fillColor: '#3b82f6',
+                fillOpacity: 1,
+                strokeWeight: 2,
+                strokeColor: '#ffffff',
+                scale: 8,
+              }}
+              zIndex={50}
             />
           )}
 
