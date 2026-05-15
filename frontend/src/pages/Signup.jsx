@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
+import { FiUser, FiMail, FiLock, FiPhone } from 'react-icons/fi';
 import { API_BASE_URL } from '../apiConfig';
 import { useGoogleLogin } from '@react-oauth/google';
-import './Auth.css';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ const Signup = () => {
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.msg || 'Registration failed. Please try again.');
+      setError(err.response?.data?.msg || err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 
@@ -82,92 +82,127 @@ const Signup = () => {
   };
 
   return (
-    <div className="auth-container">
-      {/* Floating particles background */}
-      <div className="particles">
-        {[...Array(10)].map((_, i) => (
-          <div key={i} className="particle"></div>
-        ))}
+    <div className="min-h-screen relative flex items-center justify-center p-4 bg-slate-900 overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/20 blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[120px]"></div>
       </div>
+
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="auth-card"
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 w-full max-w-md p-8 backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] my-8"
       >
-        <div className="auth-header">
-          <h1 className="auth-title">Create Account</h1>
-          <p className="auth-subtitle">Join Bus Track today</p>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400 mb-2">Create Account</h1>
+          <p className="text-slate-300">Join Bus Track today</p>
         </div>
         
-        {error && <div className="auth-error">{error}</div>}
-        {success && <div className="auth-error" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #34d399' }}>{success}</div>}
+        {error && <div className="mb-6 bg-rose-500/20 border border-rose-500/50 text-rose-300 px-4 py-3 rounded-xl text-sm text-center">{error}</div>}
+        {success && <div className="mb-6 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 px-4 py-3 rounded-xl text-sm text-center">{success}</div>}
 
-        <form className="auth-form" onSubmit={onSubmit}>
-          <div className="form-group">
-            <label>Full Name</label>
-            <input 
-              type="text" 
-              name="name"
-              value={name}
-              onChange={onChange}
-              placeholder="Enter your full name" 
-              required 
-            />
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <FiUser />
+              </div>
+              <input 
+                type="text" 
+                name="name"
+                value={name}
+                onChange={onChange}
+                placeholder="Full Name" 
+                required 
+                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              />
+            </div>
           </div>
-          <div className="form-group">
-            <label>Email Address</label>
-            <input 
-              type="email" 
-              name="email"
-              value={email}
-              onChange={onChange}
-              placeholder="Enter your email" 
-              required 
-            />
+          <div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <FiMail />
+              </div>
+              <input 
+                type="email" 
+                name="email"
+                value={email}
+                onChange={onChange}
+                placeholder="Email Address" 
+                required 
+                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              />
+            </div>
           </div>
-          <div className="form-group">
-            <label>Phone Number (Optional)</label>
-            <input 
-              type="tel" 
-              name="phone"
-              value={phone}
-              onChange={onChange}
-              placeholder="Enter your phone number" 
-            />
+          <div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <FiPhone />
+              </div>
+              <input 
+                type="tel" 
+                name="phone"
+                value={phone}
+                onChange={onChange}
+                placeholder="Phone Number (Optional)" 
+                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              />
+            </div>
           </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
-              name="password"
-              value={password}
-              onChange={onChange}
-              placeholder="Create a password" 
-              minLength="6"
-              required 
-            />
+          <div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <FiLock />
+              </div>
+              <input 
+                type="password" 
+                name="password"
+                value={password}
+                onChange={onChange}
+                placeholder="Create a password" 
+                minLength="6"
+                required 
+                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+              />
+            </div>
           </div>
-          <button type="submit" className="btn-primary auth-btn" disabled={loading}>
+          
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full mt-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-purple-500/30 transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
             {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
-        <div className="oauth-separator">
-          <span>Or sign up with</span>
+        <div className="mt-8 relative flex items-center justify-center">
+          <div className="absolute border-t border-white/10 w-full"></div>
+          <span className="relative bg-transparent px-4 text-sm text-slate-400 backdrop-blur-md">Or sign up with</span>
         </div>
-        <div className="oauth-buttons">
-          <button type="button" className="oauth-btn google-btn" onClick={() => handleOAuthLogin('Google')}>
-            <FcGoogle size={20} /> Google
+
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          <button 
+            type="button" 
+            onClick={() => handleOAuthLogin('Google')}
+            className="flex items-center justify-center gap-2 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white transition-all"
+          >
+            <FcGoogle size={20} /> <span className="text-sm font-medium">Google</span>
           </button>
-          <button type="button" className="oauth-btn github-btn" onClick={() => handleOAuthLogin('GitHub')}>
-            <FaGithub size={20} /> GitHub
+          <button 
+            type="button" 
+            onClick={() => handleOAuthLogin('GitHub')}
+            className="flex items-center justify-center gap-2 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white transition-all"
+          >
+            <FaGithub size={20} /> <span className="text-sm font-medium">GitHub</span>
           </button>
         </div>
 
-        <div className="auth-footer">
-          <p>Already have an account? <Link to="/login" className="auth-link">Log In</Link></p>
-        </div>
+        <p className="mt-8 text-center text-sm text-slate-400">
+          Already have an account? <Link to="/login" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Log In</Link>
+        </p>
       </motion.div>
     </div>
   );

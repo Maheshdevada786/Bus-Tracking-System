@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
+import { FiMail, FiLock } from 'react-icons/fi';
 import { API_BASE_URL } from '../apiConfig';
 import { useGoogleLogin } from '@react-oauth/google';
-import './Auth.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -34,16 +34,15 @@ const Login = () => {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('userInfo', JSON.stringify(res.data));
       setLoading(false);
-      setSuccess('Successfully login');
+      setSuccess('Successfully logged in!');
       
-      // Delay navigation to show success message
-        setTimeout(() => {
-          if (res.data.role === 'admin') {
-            navigate('/admin');
-          } else {
-            navigate('/');
-          }
-        }, 1500);
+      setTimeout(() => {
+        if (res.data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      }, 1500);
     } catch (err) {
       setLoading(false);
       setError(err.response?.data?.message || err.response?.data?.msg || 'Login failed. Please check your credentials.');
@@ -92,70 +91,97 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      {/* Floating particles background */}
-      <div className="particles">
-        {[...Array(10)].map((_, i) => (
-          <div key={i} className="particle"></div>
-        ))}
+    <div className="min-h-screen relative flex items-center justify-center p-4 bg-slate-900 overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/20 blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[120px]"></div>
       </div>
+
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="auth-card"
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 w-full max-w-md p-8 backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]"
       >
-        <div className="auth-header">
-          <h1 className="auth-title">Welcome Back</h1>
-          <p className="auth-subtitle">Sign in to continue to Bus Track</p>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 mb-2">Welcome Back</h1>
+          <p className="text-slate-300">Sign in to track your buses</p>
         </div>
         
-        {error && <div className="auth-error">{error}</div>}
-        {success && <div className="auth-error" style={{ backgroundColor: '#d1fae5', color: '#065f46', border: '1px solid #34d399' }}>{success}</div>}
+        {error && <div className="mb-6 bg-rose-500/20 border border-rose-500/50 text-rose-300 px-4 py-3 rounded-xl text-sm text-center">{error}</div>}
+        {success && <div className="mb-6 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 px-4 py-3 rounded-xl text-sm text-center">{success}</div>}
 
-        <form className="auth-form" onSubmit={onSubmit}>
-          <div className="form-group">
-            <label>User Name / Email Address</label>
-            <input 
-              type="text" 
-              name="email"
-              value={email}
-              onChange={onChange}
-              placeholder="Enter your username or email" 
-              required 
-            />
+        <form onSubmit={onSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5 ml-1">Email Address</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <FiMail />
+              </div>
+              <input 
+                type="text" 
+                name="email"
+                value={email}
+                onChange={onChange}
+                placeholder="Enter your email" 
+                required 
+                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+              />
+            </div>
           </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
-              name="password"
-              value={password}
-              onChange={onChange}
-              placeholder="Enter your password" 
-              required 
-            />
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5 ml-1">Password</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <FiLock />
+              </div>
+              <input 
+                type="password" 
+                name="password"
+                value={password}
+                onChange={onChange}
+                placeholder="Enter your password" 
+                required 
+                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+              />
+            </div>
           </div>
-          <button type="submit" className="btn-primary auth-btn" disabled={loading}>
-            {loading ? 'Logging in...' : 'Log In'}
+          
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full mt-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-blue-500/30 transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Logging in...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="oauth-separator">
-          <span>Or Log in with</span>
+        <div className="mt-8 relative flex items-center justify-center">
+          <div className="absolute border-t border-white/10 w-full"></div>
+          <span className="relative bg-transparent px-4 text-sm text-slate-400 backdrop-blur-md">Or continue with</span>
         </div>
-        <div className="oauth-buttons">
-          <button type="button" className="oauth-btn google-btn" onClick={() => handleOAuthLogin('Google')}>
-            <FcGoogle size={20} /> Google
+
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          <button 
+            type="button" 
+            onClick={() => handleOAuthLogin('Google')}
+            className="flex items-center justify-center gap-2 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white transition-all"
+          >
+            <FcGoogle size={20} /> <span className="text-sm font-medium">Google</span>
           </button>
-          <button type="button" className="oauth-btn github-btn" onClick={() => handleOAuthLogin('GitHub')}>
-            <FaGithub size={20} /> GitHub
+          <button 
+            type="button" 
+            onClick={() => handleOAuthLogin('GitHub')}
+            className="flex items-center justify-center gap-2 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white transition-all"
+          >
+            <FaGithub size={20} /> <span className="text-sm font-medium">GitHub</span>
           </button>
         </div>
 
-        <div className="auth-footer">
-          <p>Don't have an account? <Link to="/signup" className="auth-link">Sign Up</Link></p>
-        </div>
+        <p className="mt-8 text-center text-sm text-slate-400">
+          Don't have an account? <Link to="/signup" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Sign up</Link>
+        </p>
       </motion.div>
     </div>
   );

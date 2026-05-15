@@ -160,6 +160,9 @@ const updateProfile = async (req, res) => {
     if (user) {
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
+      if (req.body.phone !== undefined) {
+        user.phone = req.body.phone;
+      }
 
       if (req.body.oldPassword && req.body.newPassword) {
         if (await user.matchPassword(req.body.oldPassword)) {
