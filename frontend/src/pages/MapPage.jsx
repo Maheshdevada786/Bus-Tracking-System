@@ -739,16 +739,25 @@ const MapPageInner = () => {
                       const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
                       const opacity = isSelected ? 1 : 0.8;
 
+                      // Use a robust key that prevents setAt crashes by unmounting when the base path changes
+                      const groupKey = `paths-${bus.id}-${routePath.length}-${routePath[0].lat}-${routePath[routePath.length-1].lat}`;
+
                       pathElements = (
-                        <React.Fragment key={`paths-${bus.id}`}>
-                          <PolylineF 
-                            path={traveledPath}
-                            options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
-                          />
-                          <PolylineF 
-                            path={remainingPath}
-                            options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
-                          />
+                        <React.Fragment key={groupKey}>
+                          {traveledPath.length > 1 && (
+                            <PolylineF 
+                              key={`travel-${bus.id}`}
+                              path={traveledPath}
+                              options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
+                            />
+                          )}
+                          {remainingPath.length > 1 && (
+                            <PolylineF 
+                              key={`remain-${bus.id}`}
+                              path={remainingPath}
+                              options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
+                            />
+                          )}
                         </React.Fragment>
                       );
                   }
