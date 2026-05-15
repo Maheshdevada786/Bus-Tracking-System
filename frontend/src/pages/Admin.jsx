@@ -155,7 +155,7 @@ const Admin = () => {
               {loading && <FiRefreshCw className="animate-spin text-sm text-blue-300" />}
             </h3>
             <button 
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-blue-500/50 hover:-translate-y-0.5" 
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-blue-500/50 hover:-translate-y-0.5" 
               onClick={openAddModal}
             >
               <FiPlus className="text-xl" /> Add New Bus
@@ -246,42 +246,53 @@ const Admin = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 backdrop-blur-md"
             >
               <motion.div 
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="bg-slate-900/90 backdrop-blur-xl border border-white/20 rounded-3xl p-6 md:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+                initial={{ scale: 0.95, y: 30, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.95, y: 30, opacity: 0 }}
+                transition={{ type: 'spring', bounce: 0.3, duration: 0.5 }}
+                className="relative bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_15px_50px_rgba(0,0,0,0.5)] overflow-x-hidden scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent"
               >
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-white">
-                    {isEditing ? 'Edit Bus Details' : 'Add New Bus'}
-                  </h2>
+                {/* Decorative glowing orbs inside modal */}
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/20 blur-[80px] pointer-events-none z-[-1]"></div>
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/20 blur-[80px] pointer-events-none z-[-1]"></div>
+
+                <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center border border-blue-500/30 shadow-inner">
+                      <FiEdit2 className="text-blue-400" />
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                      {isEditing ? 'Edit Bus Details' : 'Add New Bus'}
+                    </h2>
+                  </div>
                   <button 
                     onClick={() => setShowModal(false)} 
-                    className="p-2 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                    className="w-10 h-10 rounded-full bg-white/5 hover:bg-rose-500/80 hover:border-rose-400 text-slate-300 hover:text-white flex items-center justify-center transition-all backdrop-blur-md border border-white/10 shadow-lg group z-50"
+                    title="Close"
                   >
-                    <FiX className="text-xl" />
+                    <FiX size={20} className="group-hover:scale-110 transition-transform" />
                   </button>
                 </div>
                 
                 <form onSubmit={handleSaveBus} className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-blue-200 mb-1">Bus Number</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-1.5 ml-1">Bus Number</label>
                     <input 
                       type="text" 
                       value={formData.busNumber} 
                       onChange={e => setFormData({...formData, busNumber: e.target.value})} 
                       required 
                       placeholder="e.g. PB-10-1234" 
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner text-sm md:text-base"
                     />
                   </div>
                   
                   <div className="flex flex-col sm:flex-row gap-5">
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-blue-200 mb-1">Capacity</label>
+                      <label className="block text-sm font-semibold text-slate-300 mb-1.5 ml-1">Capacity</label>
                       <input 
                         type="number" 
                         value={formData.capacity} 
@@ -289,57 +300,60 @@ const Admin = () => {
                         required 
                         min="10" 
                         max="100" 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner text-sm md:text-base"
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="block text-sm font-medium text-blue-200 mb-1">Type</label>
+                      <label className="block text-sm font-semibold text-slate-300 mb-1.5 ml-1">Type</label>
                       <select 
                         value={formData.type} 
                         onChange={e => setFormData({...formData, type: e.target.value})} 
-                        className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner text-sm md:text-base appearance-none cursor-pointer"
+                        style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
                       >
-                        <option value="AC">AC</option>
-                        <option value="Non-AC">Non-AC</option>
-                        <option value="Sleeper">Sleeper</option>
+                        <option value="AC" className="bg-slate-800">AC</option>
+                        <option value="Non-AC" className="bg-slate-800">Non-AC</option>
+                        <option value="Sleeper" className="bg-slate-800">Sleeper</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-blue-200 mb-1">Driver Name</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-1.5 ml-1">Driver Name</label>
                     <input 
                       type="text" 
                       value={formData.driverName} 
                       onChange={e => setFormData({...formData, driverName: e.target.value})} 
                       placeholder="Optional" 
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner text-sm md:text-base"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-blue-200 mb-1">Status</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-1.5 ml-1">Status</label>
                     <select 
                       value={formData.status} 
                       onChange={e => setFormData({...formData, status: e.target.value})} 
-                      className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner text-sm md:text-base appearance-none cursor-pointer"
+                      style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
                     >
-                      <option value="Active">Active</option>
-                      <option value="Maintenance">Maintenance</option>
-                      <option value="Out of Service">Out of Service</option>
+                      <option value="Active" className="bg-slate-800">Active</option>
+                      <option value="Maintenance" className="bg-slate-800">Maintenance</option>
+                      <option value="Out of Service" className="bg-slate-800">Out of Service</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-blue-200 mb-1">Assign Route</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-1.5 ml-1">Assign Route</label>
                     <select 
                       value={formData.routeId} 
                       onChange={e => setFormData({...formData, routeId: e.target.value})} 
-                      className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      className="w-full bg-black/20 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner text-sm md:text-base appearance-none cursor-pointer"
+                      style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
                     >
-                      <option value="" disabled>Select a route</option>
+                      <option value="" disabled className="bg-slate-800">Select a route</option>
                       {routes.map(r => (
-                        <option key={r._id} value={r._id}>{r.routeName}</option>
+                        <option key={r._id} value={r._id} className="bg-slate-800">{r.routeName}</option>
                       ))}
                     </select>
                   </div>
@@ -347,9 +361,9 @@ const Admin = () => {
                   <div className="pt-4 mt-6 border-t border-white/10">
                     <button 
                       type="submit" 
-                      className="w-full flex justify-center items-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold text-lg transition-all shadow-lg hover:shadow-blue-500/50"
+                      className="w-full flex justify-center items-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg transition-all shadow-lg hover:shadow-blue-500/50 transform hover:scale-[1.02] active:scale-95"
                     >
-                      <FiCheck /> {isEditing ? 'Update Bus' : 'Save Bus'}
+                      <FiCheck size={22} /> {isEditing ? 'Update Bus' : 'Save Bus'}
                     </button>
                   </div>
                 </form>
