@@ -1,30 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF, Polyline, InfoWindowF } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, MarkerF, PolylineF, InfoWindowF, DirectionsRenderer } from '@react-google-maps/api';
 import { FiSearch, FiX, FiLayers, FiMapPin, FiClock, FiAlertCircle, FiBell } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import './MapPage.css';
-
-// A custom wrapper that bypasses the internal setAt crash in @react-google-maps/api
-// by manually calling the native Google Maps setPath method instead of passing the path prop.
-const SafePolyline = ({ path, options }) => {
-  const polyRef = useRef(null);
-
-  useEffect(() => {
-    if (polyRef.current && path) {
-      polyRef.current.setPath(path);
-    }
-  }, [path]);
-
-  return (
-    <Polyline
-      onLoad={(p) => {
-        polyRef.current = p;
-        p.setPath(path);
-      }}
-      options={options}
-    />
-  );
-};
 
 const containerStyle = {
   width: '100%',
@@ -134,29 +112,7 @@ const MapPageInner = () => {
     return buses.find(b => b.id === selectedBus.id) || selectedBus;
   }, [buses, selectedBus]);
 
-  const trimPathBySearch = useCallback((path, searchRes) => {
-      if (!searchRes || !searchRes.sourceSearch || !searchRes.destSearch || searchRes.sourceSearch === 'your location') return path;
-      const sCoord = getCityCoord(searchRes.sourceSearch);
-      const dCoord = getCityCoord(searchRes.destSearch);
-      if (!sCoord || !dCoord || !path || path.length < 2) return path;
-
-      let sIdx = 0, dIdx = path.length - 1;
-      let sMinDist = Infinity, dMinDist = Infinity;
-      
-      path.forEach((pt, idx) => {
-          const d1 = Math.pow(pt.lat - sCoord.lat, 2) + Math.pow(pt.lng - sCoord.lng, 2);
-          if (d1 < sMinDist) { sMinDist = d1; sIdx = idx; }
-          
-          const d2 = Math.pow(pt.lat - dCoord.lat, 2) + Math.pow(pt.lng - dCoord.lng, 2);
-          if (d2 < dMinDist) { dMinDist = d2; dIdx = idx; }
-      });
-      
-      if (sIdx <= dIdx) {
-          return path.slice(sIdx, dIdx + 1);
-      } else {
-          return path.slice(dIdx, sIdx + 1).reverse();
-      }
-  }, []);
+  // Map overloaded loops removed for single request response
 
   useEffect(() => {
     if (userLocationSelected && userLocation && window.google) {
@@ -684,59 +640,56 @@ const MapPageInner = () => {
 
              if (shouldDrawPath) {
                   let routePath = baseRoutePath;
-                  
-                  if (searchResult && routePath) {
-                      routePath = trimPathBySearch(routePath, searchResult);
-                  }
 
                   if (routePath && routePath.length > 0) {
-                      let splitIdx = 0;
-                      let minDist = Infinity;
-                      routePath.forEach((pt, idx) => {
-                          const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
-                          if (dist < minDist) {
-                              minDist = dist;
-                              splitIdx = idx;
-                          }
-                      });
-                      
-                      if (routePath[splitIdx]) {
-                          snappedLocation = routePath[splitIdx];
-                      }
-                      
-                      let traveledPath = [];
-                      let remainingPath = [];
-                      
-                      traveledPath = routePath.slice(0, splitIdx + 1);
-                      traveledPath.push(snappedLocation);
-                      remainingPath = [snappedLocation, ...routePath.slice(splitIdx + 1)];
-
-                      // STRICT FILTERING: Prevent ANY invalid points from reaching Google Maps API
-                      traveledPath = traveledPath.filter(pt => pt && typeof pt.lat === 'number' && typeof pt.lng === 'number' && !isNaN(pt.lat) && !isNaN(pt.lng));
-                      remainingPath = remainingPath.filter(pt => pt && typeof pt.lat === 'number' && typeof pt.lng === 'number' && !isNaN(pt.lat) && !isNaN(pt.lng));
-
                       const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
                       const opacity = isSelected ? 1 : 0.8;
 
-                      // Extremely robust key to force unmount if the path completely changes base reference
-                      const groupKey = `paths-${bus.id}-${traveledPath.length}-${remainingPath.length}`;
+                      if (isSelected) {
+                          let splitIdx = 0;
+                          
+                          if (bus.pathIndex !== undefined && bus.pathIndex < routePath.length) {
+                              splitIdx = bus.pathIndex;
+                          } else {
+                              let minDist = Infinity;
+                              let step = Math.max(1, Math.floor(routePath.length / 200)); 
+                              for(let idx = 0; idx < routePath.length; idx += step) {
+                                  const pt = routePath[idx];
+                                  const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
+                                  if (dist < minDist) {
+                                      minDist = dist;
+                                      splitIdx = idx;
+                                  }
+                              }
+                          }
 
-                      pathElements = (
-                        <React.Fragment key={groupKey}>
-                          {traveledPath.length > 1 && (
-                            <SafePolyline 
-                              path={traveledPath}
-                              options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
+                          if (routePath[splitIdx]) {
+                              snappedLocation = routePath[splitIdx];
+                          }
+
+                          const traveledPath = routePath.slice(0, splitIdx + 1);
+                          traveledPath.push(snappedLocation);
+                          const remainingPath = [snappedLocation, ...routePath.slice(splitIdx + 1)];
+
+                          pathElements = (
+                            <React.Fragment key={`paths-${bus.id}`}>
+                              <PolylineF 
+                                path={traveledPath}
+                                options={{ strokeColor: '#9ca3af', strokeOpacity: 0.8, strokeWeight: weight, zIndex: 6 }}
+                              />
+                              <PolylineF 
+                                path={remainingPath}
+                                options={{ strokeColor: color, strokeOpacity: 1, strokeWeight: weight, zIndex: 7 }}
+                              />
+                            </React.Fragment>
+                          );
+                      } else {
+                          pathElements = (
+                            <PolylineF 
+                              options={{ path: routePath, strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: 3 }}
                             />
-                          )}
-                          {remainingPath.length > 1 && (
-                            <SafePolyline 
-                              path={remainingPath}
-                              options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
-                            />
-                          )}
-                        </React.Fragment>
-                      );
+                          );
+                      }
                   }
              }
 
