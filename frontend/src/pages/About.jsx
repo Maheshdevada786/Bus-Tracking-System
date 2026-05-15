@@ -7,7 +7,7 @@ const TEAM_MEMBERS = [
   { name: 'Mahesh', role: 'Frontend Developer', desc: 'React & UI/UX Expert' },
   { name: 'Syamanth', role: 'Backend Developer', desc: 'Node.js & Express Architecture' },
   { name: 'Jayanth Reddy', role: 'Database Manager', desc: 'MongoDB Atlas Specialist' },
-  { name: 'Harshavardhan', role: 'UI/UX Designer', desc: 'Glassmorphism & Advanced CSS' },
+  { name: 'Harshavardhan Reddy', role: 'Web Designer(UI/UX), Tailwild CSS', desc: 'Glassmorphism & Advanced CSS' },
   { name: 'Nishith', role: 'API Developer', desc: 'REST & WebSocket Integration' },
   { name: 'Balaji', role: 'Project Coordinator', desc: 'Agile Management & QA' },
 ];
