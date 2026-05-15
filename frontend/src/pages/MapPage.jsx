@@ -609,9 +609,9 @@ const MapPageInner = () => {
              const matchedGlobalKey = Object.keys(globalPaths).find(k => k.toLowerCase() === routeNameLower);
              let baseRoutePath = matchedGlobalKey && globalPaths[matchedGlobalKey].length > 1 
                                ? globalPaths[matchedGlobalKey] 
-                               : null;
+                               : (bus.route && bus.route.pathCoordinates ? bus.route.pathCoordinates : null);
 
-             if (searchResult && !baseRoutePath) {
+             if (!baseRoutePath) {
                  return null;
              }
 
@@ -619,6 +619,13 @@ const MapPageInner = () => {
              if (bus.trafficCondition === 'Moderate') color = '#F59E0B';
              if (bus.trafficCondition === 'Heavy') color = '#EF4444';
              
+             const getRouteColor = (name) => {
+                 let hash = 0;
+                 for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+                 return `hsl(${Math.abs(hash) % 360}, 85%, 50%)`;
+             };
+             const routeColor = getRouteColor(bus.route.name || String(bus.id));
+
              const busIconObject = {
                path: "M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z",
                fillColor: color,
@@ -638,59 +645,45 @@ const MapPageInner = () => {
              let pathElements = null;
              let snappedLocation = bus.currentLocation;
 
-             if (shouldDrawPath) {
-                  let routePath = baseRoutePath;
+             if (shouldDrawPath && baseRoutePath && baseRoutePath.length > 0) {
+                 const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
+                 
+                 let splitIdx = 0;
+                 if (bus.pathIndex !== undefined && bus.pathIndex < baseRoutePath.length) {
+                     splitIdx = bus.pathIndex;
+                 } else {
+                     let minDist = Infinity;
+                     let step = Math.max(1, Math.floor(baseRoutePath.length / 200)); 
+                     for(let idx = 0; idx < baseRoutePath.length; idx += step) {
+                         const pt = baseRoutePath[idx];
+                         const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
+                         if (dist < minDist) {
+                             minDist = dist;
+                             splitIdx = idx;
+                         }
+                     }
+                 }
 
-                  if (routePath && routePath.length > 0) {
-                      const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
-                      const opacity = isSelected ? 1 : 0.8;
+                 if (baseRoutePath[splitIdx]) {
+                     snappedLocation = baseRoutePath[splitIdx];
+                 }
 
-                      if (isSelected) {
-                          let splitIdx = 0;
-                          
-                          if (bus.pathIndex !== undefined && bus.pathIndex < routePath.length) {
-                              splitIdx = bus.pathIndex;
-                          } else {
-                              let minDist = Infinity;
-                              let step = Math.max(1, Math.floor(routePath.length / 200)); 
-                              for(let idx = 0; idx < routePath.length; idx += step) {
-                                  const pt = routePath[idx];
-                                  const dist = Math.pow(pt.lat - bus.currentLocation.lat, 2) + Math.pow(pt.lng - bus.currentLocation.lng, 2);
-                                  if (dist < minDist) {
-                                      minDist = dist;
-                                      splitIdx = idx;
-                                  }
-                              }
-                          }
+                 const traveledPath = baseRoutePath.slice(0, splitIdx + 1);
+                 traveledPath.push(snappedLocation);
+                 const remainingPath = [snappedLocation, ...baseRoutePath.slice(splitIdx + 1)];
 
-                          if (routePath[splitIdx]) {
-                              snappedLocation = routePath[splitIdx];
-                          }
-
-                          const traveledPath = routePath.slice(0, splitIdx + 1);
-                          traveledPath.push(snappedLocation);
-                          const remainingPath = [snappedLocation, ...routePath.slice(splitIdx + 1)];
-
-                          pathElements = (
-                            <React.Fragment key={`paths-${bus.id}`}>
-                              <PolylineF 
-                                path={traveledPath}
-                                options={{ strokeColor: '#9ca3af', strokeOpacity: 0.8, strokeWeight: weight, zIndex: 6 }}
-                              />
-                              <PolylineF 
-                                path={remainingPath}
-                                options={{ strokeColor: color, strokeOpacity: 1, strokeWeight: weight, zIndex: 7 }}
-                              />
-                            </React.Fragment>
-                          );
-                      } else {
-                          pathElements = (
-                            <PolylineF 
-                              options={{ path: routePath, strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: 3 }}
-                            />
-                          );
-                      }
-                  }
+                 pathElements = (
+                   <React.Fragment key={`paths-${bus.id}`}>
+                     <PolylineF 
+                       path={traveledPath}
+                       options={{ strokeColor: '#9ca3af', strokeOpacity: 0.8, strokeWeight: weight, zIndex: 6 }}
+                     />
+                     <PolylineF 
+                       path={remainingPath}
+                       options={{ strokeColor: routeColor, strokeOpacity: 1, strokeWeight: weight, zIndex: 7 }}
+                     />
+                   </React.Fragment>
+                 );
              }
 
              return (
