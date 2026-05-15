@@ -80,14 +80,7 @@ const generateMockBuses = (paths) => {
     { name: 'Chandigarh to Jalandhar', stops: ['chandigarh', 'mohali', 'kharar', 'sirhind', 'ludhiana', 'goraya', 'phagwara', 'jalandhar'] },
     { name: 'Moga to Mohali', stops: ['moga', 'jagraon', 'ludhiana', 'samrala', 'kharar', 'mohali'] },
     { name: 'Ludhiana to Bathinda', stops: ['ludhiana', 'jagraon', 'moga', 'kotkapura', 'bathinda'] },
-    { name: 'Jalandhar to Hoshiarpur', stops: ['jalandhar', 'bhogpur', 'tanda', 'hoshiarpur'] },
-    { name: 'Chandigarh to Patiala', stops: ['chandigarh', 'mohali', 'kharar', 'sirhind', 'patiala'] },
-    { name: 'Ludhiana to Hoshiarpur', stops: ['ludhiana', 'phagwara', 'jalandhar', 'bhogpur', 'hoshiarpur'] },
-    { name: 'Amritsar to Firozpur', stops: ['amritsar', 'tarn taran', 'makhu', 'zira', 'firozpur'] },
-    { name: 'Patiala to Bathinda', stops: ['patiala', 'nabha', 'dhuri', 'sangrur', 'bathinda'] },
-    { name: 'Moga to Amritsar', stops: ['moga', 'zira', 'makhu', 'tarn taran', 'amritsar'] },
-    { name: 'Pathankot to Chandigarh', stops: ['pathankot', 'mukerian', 'dasuya', 'tanda', 'jalandhar', 'phagwara', 'ludhiana', 'sirhind', 'kharar', 'mohali', 'chandigarh'] },
-    { name: 'Hoshiarpur to Chandigarh', stops: ['hoshiarpur', 'nawanshahr', 'ropar', 'kharar', 'mohali', 'chandigarh'] }
+    { name: 'Jalandhar to Hoshiarpur', stops: ['jalandhar', 'bhogpur', 'tanda', 'hoshiarpur'] }
   ];
 
   routes.forEach(route => {
