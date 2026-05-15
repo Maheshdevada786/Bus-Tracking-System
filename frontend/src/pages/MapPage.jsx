@@ -617,6 +617,10 @@ const MapPageInner = () => {
 
           {displayBuses.map((bus) => {
              const routeNameLower = bus.route.name ? bus.route.name.toLowerCase() : '';
+             if (!bus.currentLocation || typeof bus.currentLocation.lat !== 'number' || typeof bus.currentLocation.lng !== 'number') {
+                 return null;
+             }
+
              const matchedGlobalKey = Object.keys(globalPaths).find(k => k.toLowerCase() === routeNameLower);
              let baseRoutePath = matchedGlobalKey && globalPaths[matchedGlobalKey].length > 1 
                                ? globalPaths[matchedGlobalKey] 
@@ -688,14 +692,14 @@ const MapPageInner = () => {
                         <React.Fragment key={groupKey}>
                           {traveledPath.length > 1 && (
                             <PolylineF 
-                              key={`travel-${bus.id}`}
+                              key={`travel-${bus.id}-${traveledPath.length}`}
                               path={traveledPath}
                               options={{ strokeColor: '#9ca3af', strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 6 : 2 }}
                             />
                           )}
                           {remainingPath.length > 1 && (
                             <PolylineF 
-                              key={`remain-${bus.id}`}
+                              key={`remain-${bus.id}-${remainingPath.length}`}
                               path={remainingPath}
                               options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
                             />

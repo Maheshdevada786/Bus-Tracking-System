@@ -39,7 +39,15 @@ const runSimulation = async () => {
         const lng = startNode.lng + (endNode.lng - startNode.lng) * progress;
         
         loc.currentLocation = { lat, lng };
-        await loc.save();
+        try {
+          await loc.save();
+        } catch (saveErr) {
+          if (saveErr.name === 'DocumentNotFoundError') {
+             delete busState[loc._id];
+          } else {
+             console.error('Error saving simulated bus:', saveErr);
+          }
+        }
       }
     } catch (e) {
       console.error('Simulation error', e);
