@@ -639,10 +639,11 @@ const MapPageInner = () => {
                   if (routePath && routePath.length > 1) {
                       const weight = isSelected ? 8 : (isMatchedSearch ? 6 : 4);
                       const opacity = isSelected ? 1 : 0.8;
+                      const pathKey = `path-${bus.id}-${routePath.length}-${routePath[0].lat}-${routePath[routePath.length-1].lat}`;
 
                       pathElements = (
                         <PolylineF 
-                          key={`path-${bus.id}-${routePath.length}-${isMatchedSearch ? 'search' : 'all'}`}
+                          key={pathKey}
                           path={routePath}
                           options={{ strokeColor: color, strokeOpacity: opacity, strokeWeight: weight, zIndex: isSelected ? 7 : 3 }}
                         />
