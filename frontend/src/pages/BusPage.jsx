@@ -4,9 +4,8 @@ import { motion } from 'framer-motion';
 import { FiMapPin, FiSearch, FiClock, FiActivity, FiMap } from 'react-icons/fi';
 import { FaBusAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './BusPage.css';
 import { useBusData } from '../context/BusContext';
-import { API_BASE_URL } from '../apiConfig'
+import { API_BASE_URL } from '../apiConfig';
 
 const BusPage = () => {
   const [source, setSource] = useState('');
@@ -112,142 +111,133 @@ const BusPage = () => {
   }, [globalBuses]);
 
   return (
-    <div className="buspage-container">
-      <div className="buspage-bg"></div>
+    <div className="min-h-screen relative p-6 pt-24 pb-20 bg-slate-900 overflow-hidden text-slate-200 font-sans">
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/20 blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/20 blur-[120px]"></div>
+      </div>
       
-      <div className="buspage-content">
+      <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-8">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="search-header glass-panel"
+          className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] text-center flex flex-col gap-4"
         >
-          <h1>Find Your Bus</h1>
-          <p>Real-time tracking across Punjab</p>
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 m-0">Find Your Bus</h1>
+          <p className="text-slate-300 text-lg m-0">Real-time tracking across Punjab</p>
           
-          <form className="search-form" onSubmit={handleSearch}>
-            <div className="input-group">
-              <FiMapPin className="input-icon" />
+          <form className="flex flex-col md:flex-row gap-4 mt-4 w-full max-w-4xl mx-auto items-center justify-center" onSubmit={handleSearch}>
+            <div className="relative w-full">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <FiMapPin />
+              </div>
               <input 
                 type="text" 
                 placeholder="Source City" 
                 value={source} 
                 onChange={handleSourceChange}
+                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner"
               />
               {sourceSuggestions.length > 0 && (
-                <ul className="suggestions-list">
+                <ul className="absolute top-full left-0 w-full mt-2 bg-slate-800/90 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 text-left">
                   {sourceSuggestions.map(s => (
-                    <li key={s} onClick={() => selectSource(s)}>{s}</li>
+                    <li key={s} onClick={() => selectSource(s)} className="px-4 py-3 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-0">{s}</li>
                   ))}
                 </ul>
               )}
             </div>
             
-            <div className="input-group">
-              <FiMapPin className="input-icon" />
+            <div className="relative w-full">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                <FiMapPin />
+              </div>
               <input 
                 type="text" 
                 placeholder="Destination City" 
                 value={destination} 
                 onChange={handleDestChange}
+                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all shadow-inner"
               />
               {destSuggestions.length > 0 && (
-                <ul className="suggestions-list">
+                <ul className="absolute top-full left-0 w-full mt-2 bg-slate-800/90 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 text-left">
                   {destSuggestions.map(s => (
-                    <li key={s} onClick={() => selectDest(s)}>{s}</li>
+                    <li key={s} onClick={() => selectDest(s)} className="px-4 py-3 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-0">{s}</li>
                   ))}
                 </ul>
               )}
             </div>
             
-            <button type="submit" className="search-btn">
+            <button type="submit" className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-blue-500/30 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap">
               <FiSearch /> Search Buses
             </button>
           </form>
         </motion.div>
 
-        {error && <div className="error-banner">{error}</div>}
+        {error && <div className="bg-rose-500/20 border border-rose-500/50 text-rose-300 px-4 py-3 rounded-xl text-center backdrop-blur-md">{error}</div>}
 
-        <div className="buses-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
-            <div className="loading-spinner">Searching buses...</div>
+            <div className="col-span-full text-center py-10 text-xl text-slate-400 font-semibold animate-pulse">Searching buses...</div>
           ) : hasSearched && buses.length > 0 ? (
             buses.map((location) => (
               <motion.div 
                 key={location.id}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bus-card glass-panel"
+                className="flex flex-col justify-between backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-all hover:bg-white/15 hover:border-white/30 hover:-translate-y-1"
               >
-                <div className="card-header">
-                  <div className="bus-id">
-                    <FaBusAlt /> {location.bus?.busNumber || location.busNumber || 'Unknown'}
+                <div>
+                  <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
+                    <div className="flex items-center gap-2 text-xl font-bold text-white bg-white/10 px-3 py-1.5 rounded-xl border border-white/5 shadow-inner">
+                      <FaBusAlt className="text-blue-400" /> {location.bus?.busNumber || location.busNumber || 'Unknown'}
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${location.bus?.status === 'Active' || !location.bus?.status ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}`}>
+                      {location.bus?.status || 'Active'}
+                    </span>
                   </div>
-                  <span className={`status-badge ${location.bus?.status === 'Active' || !location.bus?.status ? 'active' : 'inactive'}`}>
-                    {location.bus?.status || 'Active'}
-                  </span>
-                </div>
-                
-                <div className="route-details">
-                  <div className="route-name">{location.fullRoute?.routeName || location.route?.name || 'Unassigned'}</div>
-                  <div className="stops-list">
-                    <strong>Stops: </strong> 
-                    {location.fullRoute?.stops ? location.fullRoute.stops.map(s => s.stopName).join(' • ') : location.route?.stops?.join(' • ')}
+                  
+                  <div className="mb-5">
+                    <div className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300 mb-2">{location.fullRoute?.routeName || location.route?.name || 'Unassigned'}</div>
+                    <div className="text-sm text-slate-300 bg-black/20 p-3 rounded-xl border border-white/5 shadow-inner">
+                      <strong className="text-white block mb-1">Stops: </strong> 
+                      <span className="leading-relaxed">{location.fullRoute?.stops ? location.fullRoute.stops.map(s => s.stopName).join(' • ') : location.route?.stops?.join(' • ')}</span>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="bus-stats">
-                  <div className="stat">
-                    <FiActivity className="stat-icon" />
-                    <span>Type: {location.bus?.type || 'AC'} • {location.bus?.capacity || 40} seats</span>
-                  </div>
-                  <div className="stat">
-                    <FiMapPin className="stat-icon" />
-                    <span>Lat: {location.currentLocation?.lat?.toFixed(4) || 'N/A'}, Lng: {location.currentLocation?.lng?.toFixed(4) || 'N/A'}</span>
-                  </div>
-                  <div className="stat">
-                    <FiClock className="stat-icon" />
-                    <span>Last Updated: {location.updatedAt ? new Date(location.updatedAt).toLocaleTimeString() : new Date().toLocaleTimeString()}</span>
+                  
+                  <div className="flex flex-col gap-2 mb-6">
+                    <div className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                      <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shadow-inner"><FiActivity size={16} /></div>
+                      <span>Type: {location.bus?.type || 'AC'} • {location.bus?.capacity || 40} seats</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                      <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 shadow-inner"><FiMapPin size={16} /></div>
+                      <span>Lat: {location.currentLocation?.lat?.toFixed(4) || 'N/A'}, Lng: {location.currentLocation?.lng?.toFixed(4) || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-inner"><FiClock size={16} /></div>
+                      <span>Last Updated: {location.updatedAt ? new Date(location.updatedAt).toLocaleTimeString() : new Date().toLocaleTimeString()}</span>
+                    </div>
                   </div>
                 </div>
 
                 <button 
-                  className="track-btn" 
+                  className="w-full py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
                   onClick={() => {
                     const stops = location.fullRoute?.stops || location.route?.stops || [];
                     const orig = source || location.fullRoute?.origin || location.route?.origin || (stops.length > 0 ? (stops[0].stopName || stops[0]) : '');
                     const dest = destination || location.fullRoute?.destination || location.route?.destination || (stops.length > 1 ? (stops[stops.length - 1].stopName || stops[stops.length - 1]) : '');
                     navigate(`/map?origin=${orig}&destination=${dest}&busId=${location.id}`);
                   }}
-                  style={{
-                    marginTop: '15px',
-                    width: '100%',
-                    padding: '12px',
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontWeight: '600',
-                    fontSize: '1rem',
-                    boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
-                  <FiMap /> Track Bus Route
+                  <FiMap size={18} /> Track Bus Route
                 </button>
               </motion.div>
             ))
           ) : (
             hasSearched && !loading && (
-              <div className="no-results glass-panel">
-                <h3>No buses found</h3>
-                <p>Try adjusting your source or destination to find available routes.</p>
+              <div className="col-span-full backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl p-10 text-center shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+                <h3 className="text-2xl font-bold text-white mb-2">No buses found</h3>
+                <p className="text-slate-300">Try adjusting your source or destination to find available routes.</p>
               </div>
             )
           )}

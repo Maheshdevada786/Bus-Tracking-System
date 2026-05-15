@@ -8,7 +8,6 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from 'recharts';
 import LiveNetworkMap from '../components/LiveNetworkMap';
-import './Dashboard.css';
 import { API_BASE_URL } from '../apiConfig';
 
 const Dashboard = () => {
@@ -48,174 +47,114 @@ const Dashboard = () => {
   if (!isMounted) return null;
 
   return (
-    <div className="dash-container">
+    <div className="min-h-screen relative p-6 pt-24 pb-20 bg-slate-900 overflow-hidden text-slate-200 font-sans">
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/20 blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/20 blur-[120px]"></div>
+      </div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="dash-wrapper"
+        className="relative z-10 max-w-7xl mx-auto flex flex-col gap-6"
       >
+        <div className="mb-2">
+          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Analytics Dashboard</h1>
+          <p className="text-slate-400">Live operational metrics and insights</p>
+        </div>
+
         {/* Top Metrics Row */}
-        <div className="dash-top-row">
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Total Buses</div>
-            <div className="metric-card-val">{stats.totalBuses}</div>
-            <div className="metric-card-sub"><span className="metric-perc up">+12.6%</span> from yesterday</div>
-            <div className="metric-icon-tr" style={{ color: '#3b82f6' }}><FaBus /></div>
-          </div>
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Active Buses</div>
-            <div className="metric-card-val">{stats.activeBuses}</div>
-            <div className="metric-card-sub">77.2% on road</div>
-            <div className="metric-icon-tr" style={{ color: '#34d399' }}><FaBus /></div>
-          </div>
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Passengers Today</div>
-            <div className="metric-card-val">357</div>
-            <div className="metric-card-sub"><span className="metric-perc up">+18.7%</span> from yesterday</div>
-            <div className="metric-icon-tr" style={{ color: '#a855f7' }}><FaUsers /></div>
-          </div>
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">On Time Performance</div>
-            <div className="metric-card-val">88.4%</div>
-            <div className="metric-card-sub"><span className="metric-perc up">+5.3%</span> from yesterday</div>
-            <div className="metric-icon-tr" style={{ color: '#3b82f6' }}><BsClockHistory /></div>
-          </div>
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Total Routes</div>
-            <div className="metric-card-val">{stats.totalRoutes}</div>
-            <div className="metric-card-sub">Across Punjab</div>
-            <div className="metric-icon-tr" style={{ color: '#f59e0b' }}><FiShare2 /></div>
-          </div>
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Total Terminals</div>
-            <div className="metric-card-val">23</div>
-            <div className="metric-card-sub">Across Punjab</div>
-            <div className="metric-icon-tr" style={{ color: '#14b8a6' }}><FiMapPin /></div>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          {[
+            { title: 'Total Buses', val: stats.totalBuses, sub: <><span className="text-emerald-400 font-bold">+12.6%</span> from yesterday</>, icon: <FaBus />, color: 'blue' },
+            { title: 'Active Buses', val: stats.activeBuses, sub: '77.2% on road', icon: <FaBus />, color: 'emerald' },
+            { title: 'Passengers Today', val: '357', sub: <><span className="text-emerald-400 font-bold">+18.7%</span> from yesterday</>, icon: <FaUsers />, color: 'purple' },
+            { title: 'On Time Performance', val: '88.4%', sub: <><span className="text-emerald-400 font-bold">+5.3%</span> from yesterday</>, icon: <BsClockHistory />, color: 'blue' },
+            { title: 'Total Routes', val: stats.totalRoutes, sub: 'Across Punjab', icon: <FiShare2 />, color: 'amber' },
+            { title: 'Total Terminals', val: '23', sub: 'Across Punjab', icon: <FiMapPin />, color: 'teal' }
+          ].map((item, i) => (
+            <div key={i} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-5 flex flex-col relative overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-all hover:-translate-y-1 hover:bg-white/15">
+              <div className="text-sm text-slate-400 font-semibold mb-2">{item.title}</div>
+              <div className="text-3xl font-bold text-white mb-2">{item.val}</div>
+              <div className="text-xs text-slate-500">{item.sub}</div>
+              <div className={`absolute top-4 right-4 text-3xl opacity-20 text-${item.color}-400`}>{item.icon}</div>
+            </div>
+          ))}
         </div>
 
         {/* Middle Row */}
-        <div className="dash-middle-row">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Live Map Box */}
-          <div className="map-section glass">
-            <div className="map-title">Live Map - Punjab</div>
-            <div className="map-subtitle">Track all active buses</div>
-            <div style={{ flex: 1, position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+          <div className="lg:col-span-6 flex flex-col backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] h-[500px]">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-white">Live Map - Punjab</h2>
+              <p className="text-sm text-slate-400">Track all active buses</p>
+            </div>
+            <div className="flex-1 relative rounded-xl overflow-hidden border border-white/10 shadow-inner">
               <LiveNetworkMap />
             </div>
           </div>
 
           {/* Upcoming Arrivals Box */}
-          <div className="arrivals-section glass">
-            <div className="map-title">Upcoming Arrivals</div>
-            <div className="map-subtitle">Next buses at selected stop</div>
-            <select className="dropdown-glass" style={{backgroundColor: 'rgba(15, 23, 42, 0.7)', color: 'white'}}>
-              <option>ISBT Ludhiana</option>
-              <option>ISBT Chandigarh</option>
-              <option>Jalandhar Bus Stand</option>
-            </select>
+          <div className="lg:col-span-3 flex flex-col backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] h-[500px]">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-white">Upcoming Arrivals</h2>
+              <p className="text-sm text-slate-400 mb-3">Next buses at selected stop</p>
+              <select className="w-full bg-slate-800/80 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 appearance-none cursor-pointer"
+                style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.7rem top 50%', backgroundSize: '0.65rem auto' }}
+              >
+                <option>ISBT Ludhiana</option>
+                <option>ISBT Chandigarh</option>
+                <option>Jalandhar Bus Stand</option>
+              </select>
+            </div>
             
-            <div style={{ flex: 1, overflowY: 'auto' }}>
-              <div className="arrival-item">
-                <div className="arrival-icon" style={{ background: 'rgba(245, 158, 11, 0.2)', color: '#f59e0b' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">PRTC Volvo</div>
-                  <div className="arrival-route">Chandigarh • PB 01 A 1234</div>
+            <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent space-y-3">
+              {[
+                { name: 'PRTC Volvo', route: 'Chandigarh • PB 01 A 1234', time: '2', color: 'amber' },
+                { name: 'PRTC Ordinary', route: 'Amritsar • PB 03 B 5678', time: '5', color: 'rose' },
+                { name: 'PRTC Volvo', route: 'Patiala • PB 11 C 9101', time: '8', color: 'blue' },
+                { name: 'PRTC Ordinary', route: 'Bathinda • PB 05 D 4321', time: '12', color: 'emerald' },
+                { name: 'PRTC Volvo', route: 'Jalandhar • PB 01 A 1234', time: '15', color: 'purple' },
+                { name: 'PRTC Travelers', route: 'Ludhiana • PB 012 A 1534', time: '11', color: 'purple' },
+                { name: 'PRTC Swati', route: 'khana • PB 44 D 9473', time: '8', color: 'purple' },
+                { name: 'Punjab Roadways', route: 'Khana • PB 77 F 4785', time: '14', color: 'purple' },
+                { name: 'Panipet Roadways', route: 'panipet • PB 32 A 4093', time: '7', color: 'purple' },
+                { name: 'Punjab Travlers', route: 'Ambala • PB 22 F 4569', time: '17', color: 'purple' }
+              ].map((arr, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-black/20 rounded-xl border border-white/5 hover:bg-white/5 transition-colors">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-${arr.color}-500/20 text-${arr.color}-400 shrink-0`}>
+                    <FaBus />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold text-white truncate">{arr.name}</div>
+                    <div className="text-xs text-slate-400 truncate">{arr.route}</div>
+                  </div>
+                  <div className="text-xl font-bold text-white shrink-0 text-right">
+                    {arr.time} <span className="text-xs font-normal text-slate-400 block -mt-1">min</span>
+                  </div>
                 </div>
-                <div className="arrival-time">2 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item">
-                <div className="arrival-icon" style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">PRTC Ordinary</div>
-                  <div className="arrival-route">Amritsar • PB 03 B 5678</div>
-                </div>
-                <div className="arrival-time">5 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item">
-                <div className="arrival-icon" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">PRTC Volvo</div>
-                  <div className="arrival-route">Patiala • PB 11 C 9101</div>
-                </div>
-                <div className="arrival-time">8 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item">
-                <div className="arrival-icon" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">PRTC Ordinary</div>
-                  <div className="arrival-route">Bathinda • PB 05 D 4321</div>
-                </div>
-                <div className="arrival-time">12 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item" style={{ borderBottom: 'none' }}>
-                <div className="arrival-icon" style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#a855f7' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">PRTC Volvo</div>
-                  <div className="arrival-route">Jalandhar • PB 01 A 1234</div>
-                </div>
-                <div className="arrival-time">15 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item" style={{ borderBottom: 'none' }}>
-                <div className="arrival-icon" style={{ background: 'rgba(24, 228, 197, 0.35)', color: '#a855f7' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">PRTC Travelers</div>
-                  <div className="arrival-route">Ludhiana • PB 012 A 1534</div>
-                </div>
-                <div className="arrival-time">11 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item" style={{ borderBottom: 'none' }}>
-                <div className="arrival-icon" style={{ background: 'rgba(104, 169, 24, 0.47)', color: '#a855f7' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">PRTC Swati</div>
-                  <div className="arrival-route">khana • PB 44 D 9473</div>
-                </div>
-                <div className="arrival-time">8 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item" style={{ borderBottom: 'none' }}>
-                <div className="arrival-icon" style={{ background: 'rgba(204, 34, 54, 0.47)', color: '#a855f7' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">Punjab Roadways</div>
-                  <div className="arrival-route">Khana • PB 77 F 4785</div>
-                </div>
-                <div className="arrival-time">14 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item" style={{ borderBottom: 'none' }}>
-                <div className="arrival-icon" style={{ background: 'rgba(218, 130, 52, 0.36)', color: '#a855f7' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">Panipet Roadways</div>
-                  <div className="arrival-route">panipet • PB 32 A 4093</div>
-                </div>
-                <div className="arrival-time">7 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
-              <div className="arrival-item" style={{ borderBottom: 'none' }}>
-                <div className="arrival-icon" style={{ background: 'rgba(180, 197, 29, 0.32)', color: '#a855f7' }}><FaBus /></div>
-                <div className="arrival-info">
-                  <div className="arrival-name">Punjab Travlers</div>
-                  <div className="arrival-route">Ambala • PB 22 F 4569</div>
-                </div>
-                <div className="arrival-time">17 <span style={{fontSize: '0.7rem', fontWeight: 'normal'}}>min</span></div>
-              </div>
+              ))}
             </div>
           </div>
 
           {/* Charts Box */}
-          <div className="charts-section">
-            <div className="chart-card glass">
-              <div className="chart-header">
+          <div className="lg:col-span-3 flex flex-col gap-6">
+            <div className="flex-1 flex flex-col backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <div className="chart-title">Daily Passenger Trends</div>
-                  <div className="chart-subtitle">Total passengers over time</div>
+                  <h2 className="text-lg font-bold text-white">Daily Passenger Trends</h2>
+                  <p className="text-xs text-slate-400">Total passengers over time</p>
                 </div>
-                <select className="dropdown-glass" style={{ width: 'auto', marginBottom: 0, padding: '0.2rem 0.5rem', fontSize: '0.8rem',backgroundColor:'rgb(10, 20, 40)',color:'white' }}>
+                <select className="bg-slate-800/80 border border-white/20 rounded-md px-2 py-1 text-xs text-white focus:outline-none appearance-none cursor-pointer">
                   <option>April Month</option>
                   <option>March Month</option>
                 </select>
               </div>
-              <div style={{ flex: 1, minHeight: '120px' }}>
+              <div className="flex-1 min-h-[120px] -ml-5">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={passengerTrendsData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                  <AreaChart data={passengerTrendsData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8}/>
@@ -231,124 +170,61 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="chart-card glass">
-              <div className="chart-header">
+            <div className="flex-1 flex flex-col backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <div className="chart-title">Top Routes by Passengers</div>
-                  <div className="chart-subtitle">This week</div>
+                  <h2 className="text-lg font-bold text-white">Top Routes</h2>
+                  <p className="text-xs text-slate-400">This week</p>
                 </div>
-                <div style={{ color: '#3b82f6', fontSize: '0.8rem', cursor: 'pointer' }}>View All</div>
+                <div className="text-blue-400 text-xs cursor-pointer hover:underline">View All</div>
               </div>
-              <div style={{ flex: 1 }}>
-                <div className="top-route-item">
-                  <div style={{ width: '120px' }}>Chandigarh - Amritsar</div>
-                  <div className="route-bar-bg"><div className="route-bar-fill" style={{ width: '90%', background: '#a855f7' }}></div></div>
-                  <div style={{ width: '40px', textAlign: 'right' }}>450</div>
-                </div>
-                <div className="top-route-item">
-                  <div style={{ width: '120px' }}>Ludhiana - Delhi</div>
-                  <div className="route-bar-bg"><div className="route-bar-fill" style={{ width: '75%', background: '#3b82f6' }}></div></div>
-                  <div style={{ width: '40px', textAlign: 'right' }}>387</div>
-                </div>
-                <div className="top-route-item">
-                  <div style={{ width: '120px' }}>Patiala - Chandigarh</div>
-                  <div className="route-bar-bg"><div className="route-bar-fill" style={{ width: '60%', background: '#10b981' }}></div></div>
-                  <div style={{ width: '40px', textAlign: 'right' }}>321</div>
-                </div>
-                <div className="top-route-item">
-                  <div style={{ width: '120px' }}>Jalandhar - Ludhiana</div>
-                  <div className="route-bar-bg"><div className="route-bar-fill" style={{ width: '55%', background: '#f59e0b' }}></div></div>
-                  <div style={{ width: '40px', textAlign: 'right' }}>295</div>
-                </div>
-                <div className="top-route-item" style={{ marginBottom: 0 }}>
-                  <div style={{ width: '120px' }}>Bathinda - Chandigarh</div>
-                  <div className="route-bar-bg"><div className="route-bar-fill" style={{ width: '45%', background: '#ef4444' }}></div></div>
-                  <div style={{ width: '40px', textAlign: 'right' }}>249</div>
-                </div>
+              <div className="flex-1 flex flex-col justify-between gap-2">
+                {[
+                  { route: 'Chandigarh - Amritsar', val: 450, w: '90%', c: 'bg-purple-500' },
+                  { route: 'Ludhiana - Delhi', val: 387, w: '75%', c: 'bg-blue-500' },
+                  { route: 'Patiala - Chandigarh', val: 321, w: '60%', c: 'bg-emerald-500' },
+                  { route: 'Jalandhar - Ludhiana', val: 295, w: '55%', c: 'bg-amber-500' },
+                  { route: 'Bathinda - Chandigarh', val: 249, w: '45%', c: 'bg-rose-500' }
+                ].map((r, i) => (
+                  <div key={i} className="flex items-center text-xs font-semibold text-slate-300">
+                    <div className="w-28 truncate pr-2">{r.route}</div>
+                    <div className="flex-1 h-1.5 bg-black/40 rounded-full overflow-hidden">
+                      <div className={`h-full ${r.c} rounded-full`} style={{ width: r.w }}></div>
+                    </div>
+                    <div className="w-8 text-right text-white">{r.val}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
         {/* Bottom Metrics Row */}
-        <div className="dash-bottom-row">
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Occupancy</div>
-            <div className="metric-card-sub">Average bus occupancy</div>
-            <div className="metric-card-val" style={{ marginTop: '0.5rem' }}>72% <span className="metric-perc up" style={{fontSize: '0.8rem'}}>+6.4%</span></div>
-            <div className="mini-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={miniChartData1}>
-                  <Area type="monotone" dataKey="v" stroke="#a855f7" strokeWidth={2} fillOpacity={0.2} fill="#a855f7" />
-                </AreaChart>
-              </ResponsiveContainer>
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          {[
+            { title: 'Occupancy', sub: 'Average bus occupancy', val: '72%', trend: '+6.4%', color: 'purple', data: miniChartData1 },
+            { title: 'On Time', sub: 'This week', val: '88.4%', trend: '+5.3%', color: 'emerald', data: miniChartData2 },
+            { title: 'Total Passengers', sub: 'Today', val: '3678', trend: '+18.7%', color: 'blue', data: miniChartData1 },
+            { title: 'Total Revenue', sub: 'This Month', val: '₹799', trend: '+14.2%', color: 'purple', data: miniChartData2 },
+            { title: 'Fuel Efficiency', sub: 'Average (Km/Litre)', val: '4.2 km/l', trend: '+3.1%', color: 'emerald', data: miniChartData1 },
+            { title: 'Delay Summary', sub: 'Total delays today', val: '243', trend: '-11.2%', color: 'rose', data: miniChartData2, down: true }
+          ].map((item, i) => (
+            <div key={i} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-4 flex flex-col relative overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] transition-all hover:-translate-y-1 hover:bg-white/15">
+              <div className="text-sm text-slate-200 font-bold">{item.title}</div>
+              <div className="text-[10px] text-slate-400 mb-2">{item.sub}</div>
+              <div className="text-xl font-bold text-white mb-2 flex items-baseline gap-2">
+                {item.val} 
+                <span className={`text-[10px] font-bold ${item.down ? 'text-rose-400' : 'text-emerald-400'}`}>{item.trend}</span>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-10 opacity-60 pointer-events-none">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={item.data}>
+                    <Area type="monotone" dataKey="v" stroke={`var(--tw-colors-${item.color}-500)`} strokeWidth={2} fillOpacity={0.2} fill={`var(--tw-colors-${item.color}-500)`} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </div>
-          
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">On Time Performance</div>
-            <div className="metric-card-sub">This week</div>
-            <div className="metric-card-val" style={{ marginTop: '0.5rem' }}>88.4% <span className="metric-perc up" style={{fontSize: '0.8rem'}}>+5.3%</span></div>
-            <div className="mini-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={miniChartData2}>
-                  <Area type="monotone" dataKey="v" stroke="#10b981" strokeWidth={2} fillOpacity={0.2} fill="#10b981" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Total Passengers</div>
-            <div className="metric-card-sub">Today</div>
-            <div className="metric-card-val" style={{ marginTop: '0.5rem' }}>3678<span className="metric-perc up" style={{fontSize: '0.8rem'}}>+18.7%</span></div>
-            <div className="mini-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={miniChartData1}>
-                  <Area type="monotone" dataKey="v" stroke="#3b82f6" strokeWidth={2} fillOpacity={0.2} fill="#3b82f6" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Total Revenue</div>
-            <div className="metric-card-sub">This Month</div>
-            <div className="metric-card-val" style={{ marginTop: '0.5rem' }}>₹799<span className="metric-perc up" style={{fontSize: '0.8rem'}}>+14.2%</span></div>
-            <div className="mini-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={miniChartData2}>
-                  <Area type="monotone" dataKey="v" stroke="#a855f7" strokeWidth={2} fillOpacity={0.2} fill="#a855f7" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Fuel Efficiency</div>
-            <div className="metric-card-sub">Average (Km/Litre)</div>
-            <div className="metric-card-val" style={{ marginTop: '0.5rem' }}>4.2 km/l <span className="metric-perc up" style={{fontSize: '0.8rem'}}>+3.1%</span></div>
-            <div className="mini-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={miniChartData1}>
-                  <Area type="monotone" dataKey="v" stroke="#10b981" strokeWidth={2} fillOpacity={0.2} fill="#10b981" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="metric-card-small glass">
-            <div className="metric-card-title">Delay Summary</div>
-            <div className="metric-card-sub">Total delays today</div>
-            <div className="metric-card-val" style={{ marginTop: '0.5rem' }}>243 <span className="metric-perc down" style={{fontSize: '0.8rem'}}>-11.2%</span></div>
-            <div className="mini-chart">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={miniChartData2}>
-                  <Area type="monotone" dataKey="v" stroke="#ef4444" strokeWidth={2} fillOpacity={0.2} fill="#ef4444" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          ))}
         </div>
 
       </motion.div>
