@@ -74,7 +74,25 @@ const routeDefinitions = [
     { name: 'Patiala to Bathinda', stops: ['patiala', 'nabha', 'dhuri', 'sangrur', 'bathinda'] },
     { name: 'Moga to Amritsar', stops: ['moga', 'zira', 'makhu', 'tarn taran', 'amritsar'] },
     { name: 'Pathankot to Chandigarh', stops: ['pathankot', 'mukerian', 'dasuya', 'tanda', 'jalandhar', 'phagwara', 'ludhiana', 'sirhind', 'kharar', 'mohali', 'chandigarh'] },
-    { name: 'Hoshiarpur to Chandigarh', stops: ['hoshiarpur', 'nawanshahr', 'ropar', 'kharar', 'mohali', 'chandigarh'] }
+    { name: 'Hoshiarpur to Chandigarh', stops: ['hoshiarpur', 'nawanshahr', 'ropar', 'kharar', 'mohali', 'chandigarh'] },
+    { name: 'Batala to Hoshiarpur', stops: ['batala', 'amritsar', 'jandiala guru', 'beas', 'jalandhar', 'bhogpur', 'hoshiarpur'] },
+    { name: 'Faridkot to Jalandhar', stops: ['faridkot', 'kotkapura', 'moga', 'nakodar', 'jalandhar'] },
+    { name: 'Sangrur to Chandigarh', stops: ['sangrur', 'dhuri', 'malerkotla', 'ludhiana', 'samrala', 'morinda', 'kharar', 'mohali', 'chandigarh'] },
+    { name: 'Pathankot to Amritsar (via Gurdaspur)', stops: ['pathankot', 'mukerian', 'gurdaspur', 'batala', 'fatehgarh churian', 'amritsar'] },
+    { name: 'Jalandhar to Bathinda', stops: ['jalandhar', 'nakodar', 'moga', 'jagraon', 'kotkapura', 'faridkot', 'bathinda'] },
+    { name: 'Hoshiarpur to Amritsar', stops: ['hoshiarpur', 'tanda', 'dasuya', 'mukerian', 'gurdaspur', 'batala', 'amritsar'] },
+    { name: 'Patiala to Jalandhar', stops: ['patiala', 'sirhind', 'mandi gobindgarh', 'khanna', 'ludhiana', 'goraya', 'phagwara', 'jalandhar'] },
+    { name: 'Firozpur to Ludhiana', stops: ['firozpur', 'zira', 'moga', 'jagraon', 'ludhiana'] },
+    { name: 'Bathinda to Chandigarh', stops: ['bathinda', 'sangrur', 'patiala', 'sirhind', 'kharar', 'mohali', 'chandigarh'] },
+    { name: 'Chandigarh to Amritsar (via Ropar)', stops: ['chandigarh', 'mohali', 'kharar', 'ropar', 'nawanshahr', 'phagwara', 'jalandhar', 'kartarpur', 'beas', 'jandiala guru', 'amritsar'] },
+    { name: 'Moga to Patiala', stops: ['moga', 'jagraon', 'ludhiana', 'malerkotla', 'dhuri', 'nabha', 'patiala'] },
+    { name: 'Gurdaspur to Jalandhar', stops: ['gurdaspur', 'mukerian', 'dasuya', 'tanda', 'bhogpur', 'jalandhar'] },
+    { name: 'Ludhiana to Pathankot', stops: ['ludhiana', 'phagwara', 'jalandhar', 'bhogpur', 'tanda', 'dasuya', 'mukerian', 'pathankot'] },
+    { name: 'Amritsar to Ludhiana (via Zira)', stops: ['amritsar', 'tarn taran', 'makhu', 'zira', 'moga', 'jagraon', 'ludhiana'] },
+    { name: 'Batala to Chandigarh', stops: ['batala', 'amritsar', 'beas', 'jalandhar', 'phagwara', 'ludhiana', 'khanna', 'sirhind', 'kharar', 'mohali', 'chandigarh'] },
+    { name: 'Hoshiarpur to Bathinda', stops: ['hoshiarpur', 'jalandhar', 'nakodar', 'moga', 'kotkapura', 'bathinda'] },
+    { name: 'Firozpur to Patiala', stops: ['firozpur', 'faridkot', 'kotkapura', 'bathinda', 'sangrur', 'patiala'] },
+    { name: 'Ropar to Amritsar', stops: ['ropar', 'nawanshahr', 'phagwara', 'jalandhar', 'kartarpur', 'beas', 'amritsar'] }
 ];
 
 const addRoutes = async () => {

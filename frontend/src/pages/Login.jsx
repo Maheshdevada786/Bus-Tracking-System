@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
-import { FiMail, FiLock } from 'react-icons/fi';
+import { FiUser, FiLock } from 'react-icons/fi';
 import { API_BASE_URL } from '../apiConfig';
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -114,17 +114,17 @@ const Login = () => {
 
         <form onSubmit={onSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5 ml-1">Email Address</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5 ml-1">Email or Username</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                <FiMail />
+                <FiUser />
               </div>
               <input 
                 type="text" 
                 name="email"
                 value={email}
                 onChange={onChange}
-                placeholder="Enter your email" 
+                placeholder="Enter your email or username" 
                 required 
                 className="w-full bg-black/20 border border-white/10 rounded-2xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
               />
@@ -153,7 +153,7 @@ const Login = () => {
             disabled={loading}
             className="w-full mt-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-blue-500/30 transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading ? 'Logging in...' : 'Sign In'}
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 

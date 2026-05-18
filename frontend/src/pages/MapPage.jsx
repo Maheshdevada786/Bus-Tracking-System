@@ -347,11 +347,8 @@ const MapPageInner = () => {
   }, []);
 
   const handleSmartAlertSave = async () => {
-    // Close modal INSTANTLY as requested
-    setShowSmartAlertModal(false);
-    
-    // Set saving state but don't show message yet
     setIsSavingAlert(true);
+    setAlertSavedMessage('');
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || '';
@@ -377,17 +374,18 @@ const MapPageInner = () => {
         setAlertSavedMessage('Smart Alert activated successfully!');
         setTimeout(() => {
           setAlertSavedMessage('');
-        }, 2000); // Increased slightly for visibility
+          setShowSmartAlertModal(false);
+        }, 2000);
       } else {
         setIsSavingAlert(false);
         setAlertSavedMessage('Failed to save alert.');
-        setTimeout(() => setAlertSavedMessage(''), 1000);
+        setTimeout(() => setAlertSavedMessage(''), 2000);
       }
     } catch (err) {
       console.error(err);
       setAlertSavedMessage('Connection error. Check your internet.');
       setIsSavingAlert(false);
-      setTimeout(() => setAlertSavedMessage(''), 1000);
+      setTimeout(() => setAlertSavedMessage(''), 2000);
     }
   };
 
@@ -434,7 +432,7 @@ const MapPageInner = () => {
 
   return (
     <div className="map-page-container">
-      {alertSavedMessage && (
+      {alertSavedMessage && !showSmartAlertModal && (
         <div style={{ 
           position: 'fixed', 
           top: '20px', 
@@ -1048,48 +1046,58 @@ const MapPageInner = () => {
       </button>
 
       {showSmartAlertModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000 }}>
-          <div className="glass-panel" style={{ width: '400px', padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.95)' }}>
-            <h2 style={{ marginTop: 0, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FiBell /> Smart Alert Setup
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[3000]">
+          <div className="bg-slate-900/90 backdrop-blur-xl border border-white/10 w-full max-w-md p-6 rounded-2xl shadow-2xl relative">
+            <h2 className="mt-0 text-xl font-bold text-white flex items-center gap-2 mb-2">
+              <FiBell className="text-blue-500" /> Smart Alert Setup
             </h2>
-            <p style={{ fontSize: '0.9rem', color: '#64748b' }}>Get instant notifications via Email or WhatsApp when {selectedBus?.busNumber || 'your bus'} approaches stops.</p>
+            <p className="text-sm text-slate-400 mb-6">Get instant notifications via Email or WhatsApp when {selectedBus?.busNumber || 'your bus'} approaches stops.</p>
             
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '5px', color: '#334155' }}>Email Address</label>
-              <input 
-                type="email" 
-                value={smartAlertEmail} 
-                onChange={(e) => setSmartAlertEmail(e.target.value)} 
-                placeholder="Enter your email"
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-slate-300">Email Address</label>
+                <input 
+                  type="email" 
+                  value={smartAlertEmail} 
+                  onChange={(e) => setSmartAlertEmail(e.target.value)} 
+                  placeholder="Enter your email"
+                  className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-slate-300">WhatsApp Number</label>
+                <input 
+                  type="text" 
+                  value={smartAlertPhone}
+                  onChange={(e) => setSmartAlertPhone(e.target.value)}
+                  placeholder="+91 "
+                  className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                />
+              </div>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '5px', color: '#334155' }}>WhatsApp Number</label>
-              <input 
-                type="text" 
-                value={smartAlertPhone}
-                onChange={(e) => setSmartAlertPhone(e.target.value)}
-                placeholder="+91 "
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}
-              />
-            </div>
+            {/* MESSAGE ALERT INSIDE MODAL */}
+            {alertSavedMessage && (
+               <div className={`mt-4 p-3 rounded-xl text-sm flex items-center gap-2 ${alertSavedMessage.includes('error') || alertSavedMessage.includes('Failed') ? 'bg-rose-500/20 text-rose-300 border border-rose-500/50' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'}`}>
+                 <FiBell /> {alertSavedMessage}
+               </div>
+            )}
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <div className="flex gap-3 justify-end mt-6">
               <button 
                 onClick={() => setShowSmartAlertModal(false)}
                 disabled={isSavingAlert}
-                style={{ padding: '8px 16px', border: 'none', background: '#e2e8f0', color: '#334155', borderRadius: '8px', cursor: isSavingAlert ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: isSavingAlert ? 0.7 : 1 }}
+                className="px-5 py-2.5 rounded-xl font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSmartAlertSave}
                 disabled={isSavingAlert}
-                style={{ padding: '8px 16px', border: 'none', background: 'var(--primary)', color: 'white', borderRadius: '8px', cursor: isSavingAlert ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: isSavingAlert ? 0.7 : 1 }}
+                className="px-5 py-2.5 rounded-xl font-medium bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 flex items-center gap-2"
               >
+                {isSavingAlert && <div className="pulse-dot bg-white"></div>}
                 {isSavingAlert ? 'Saving...' : 'Save Alert'}
               </button>
             </div>

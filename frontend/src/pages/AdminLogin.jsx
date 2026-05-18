@@ -68,13 +68,13 @@ const AdminLogin = () => {
 
         <form className="auth-form" onSubmit={onSubmit}>
           <div className="form-group admin-form-group">
-            <label style={{ color: '#fca5a5' }}>Admin Email</label>
+            <label style={{ color: '#fca5a5' }}>Admin Email or Username</label>
             <input 
-              type="email" 
+              type="text" 
               name="email"
               value={email}
               onChange={onChange}
-              placeholder="admin@example.com" 
+              placeholder="admin@example.com or username" 
               required 
             />
           </div>

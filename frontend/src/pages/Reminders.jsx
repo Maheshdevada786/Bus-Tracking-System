@@ -19,9 +19,11 @@ const Reminders = () => {
     emergencyAlerts: true
   });
 
-  const [activeAlerts, setActiveAlerts] = useState([]);
+  const [activeAlerts, setActiveAlerts] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('cachedAlerts')) || []; } catch { return []; }
+  });
   
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -72,6 +74,7 @@ const Reminders = () => {
         }));
         
         setActiveAlerts(formattedAlerts);
+        localStorage.setItem('cachedAlerts', JSON.stringify(formattedAlerts));
         setLoading(false);
       } catch (err) {
         console.error('Error fetching alerts:', err);

@@ -6,11 +6,22 @@ import axios from 'axios';
 import { API_BASE_URL } from '../apiConfig';
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('userInfo');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(!user);
   const [isEditing, setIsEditing] = useState(false);
   
-  const [editData, setEditData] = useState({ name: '', email: '', phone: '' });
+  const [editData, setEditData] = useState({ 
+    name: user?.name || '', 
+    email: user?.email || '', 
+    phone: user?.phone || '' 
+  });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -29,6 +40,7 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUser(res.data);
+        localStorage.setItem('userInfo', JSON.stringify(res.data));
         setEditData({ name: res.data.name || '', email: res.data.email || '', phone: res.data.phone || '' });
         setLoading(false);
       } catch (err) {
@@ -57,8 +69,14 @@ const Profile = () => {
       const res = await axios.put(`${API_BASE_URL}/api/auth/profile`, editData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUser({ ...user, name: res.data.name, email: res.data.email, phone: res.data.phone });
+      const updatedUser = { ...user, name: res.data.name, email: res.data.email, phone: res.data.phone, role: res.data.role };
+      setUser(updatedUser);
+      localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       setIsEditing(false);
+      setEditData({ ...editData, oldPassword: '', newPassword: '' });
       setMessage('Profile updated successfully!');
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {

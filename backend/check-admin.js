@@ -11,19 +11,19 @@ async function checkAdmin() {
     console.log("All users:");
     users.forEach(u => console.log(u.email, u.role));
     
-    let admin = await User.findOne({ email: 'admin@example.com' });
+    let admin = await User.findOne({ email: 'admin@bus.in' });
     if (!admin) {
-      console.log("admin@example.com not found. Creating it...");
+      console.log("admin@bus.in not found. Creating it...");
       admin = await User.create({
         name: 'Admin',
-        email: 'admin@example.com',
+        email: 'admin@bus.in',
         password: 'password123',
         role: 'admin',
         phone: '1234567890'
       });
       console.log("Admin created with password: password123");
     } else {
-      console.log("admin@example.com exists. Setting password to password123...");
+      console.log("admin@bus.in exists. Setting password to password123...");
       admin.password = 'password123';
       await admin.save();
       console.log("Password updated to password123");

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX, FiMessageSquare, FiCpu, FiHome, FiMap, FiInfo, FiSettings, FiActivity, FiSend, FiSearch } from 'react-icons/fi';
+import { FiMenu, FiX, FiMessageSquare, FiCpu, FiHome, FiMap, FiInfo, FiSettings, FiActivity, FiSend, FiSearch, FiUser } from 'react-icons/fi';
 import { chatbotDataset } from '../data/chatbotDataset';
 import busLogo from '../assets/bus-logo.jpeg';
 import { API_BASE_URL } from '../apiConfig';
@@ -132,10 +132,9 @@ const Layout = ({ children }) => {
         </div>
         <div className="nav-right">
           {!user ? (
-            <>
-              <Link to="/login" className="nav-btn-glass">Login</Link>
-              <Link to="/signup" className="nav-btn-glass">Sign Up</Link>
-            </>
+            <Link to="/login" className="px-5 py-2 md:px-6 md:py-2.5 rounded-full font-bold text-sm tracking-wide text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] border border-white/20 hover:from-blue-500 hover:to-purple-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2 backdrop-blur-md whitespace-nowrap">
+              <FiUser className="text-blue-200" size={16} /> Login / Signup
+            </Link>
           ) : (
             <Link to="/profile" className="user-profile-nav">
               <img src={user.profilePicture || user.profilePic || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt="Profile" className="nav-profile-img" loading="lazy" />

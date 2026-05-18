@@ -9,9 +9,13 @@ const Admin = () => {
   const { buses: activeBuses } = useBusData();
   
   // Dashboard State
-  const [buses, setBuses] = useState([]);
-  const [routes, setRoutes] = useState([]); 
-  const [loading, setLoading] = useState(true);
+  const [buses, setBuses] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('adminBuses')) || []; } catch { return []; }
+  });
+  const [routes, setRoutes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('adminRoutes')) || []; } catch { return []; }
+  }); 
+  const [loading, setLoading] = useState(false);
   const [dashboardError, setDashboardError] = useState('');
   
   // Modal State
@@ -34,11 +38,13 @@ const Admin = () => {
     try {
       const resBuses = await axios.get(`${API_BASE_URL}/api/buses`);
       setBuses(resBuses.data);
+      localStorage.setItem('adminBuses', JSON.stringify(resBuses.data));
       
       const resRoutes = await axios.get(`${API_BASE_URL}/api/buses/routes`);
       const uniqueRoutes = resRoutes.data;
       
       setRoutes(uniqueRoutes);
+      localStorage.setItem('adminRoutes', JSON.stringify(uniqueRoutes));
       if (uniqueRoutes.length > 0) {
         setFormData(prev => ({ ...prev, routeId: prev.routeId || uniqueRoutes[0]._id }));
       }
@@ -168,7 +174,7 @@ const Admin = () => {
             </div>
           )}
           
-          {loading ? (
+          {loading && buses.length === 0 ? (
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-400"></div>
             </div>

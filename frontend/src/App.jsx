@@ -40,8 +40,12 @@ const AdminRoute = ({ children }) => {
 };
 
 const FallbackLoader = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
-    <div style={{ width: '50px', height: '50px', border: '5px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f172a', position: 'fixed', inset: 0, zIndex: 9999 }}>
+    <div style={{ position: 'relative', width: '80px', height: '80px' }}>
+      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid rgba(255,255,255,0.1)' }}></div>
+      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid #3b82f6', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' }}></div>
+      <div style={{ position: 'absolute', inset: '8px', borderRadius: '50%', border: '4px solid #a855f7', borderBottomColor: 'transparent', animation: 'spin 1.5s linear infinite reverse' }}></div>
+    </div>
     <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
   </div>
 );
